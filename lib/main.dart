@@ -6,6 +6,7 @@ import 'package:to_do_app/view/splash_screen.dart';
 import 'package:to_do_app/view_model/auth_view_model.dart';
 import 'package:to_do_app/view_model/onboarding_view_model.dart';
 import 'package:to_do_app/view_model/splash_view_model.dart';
+import 'package:to_do_app/view_model/task_view_model.dart';
 import 'package:to_do_app/view_model/user_view_model.dart';
 
 void main() => runApp(
@@ -21,7 +22,6 @@ void main() => runApp(
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => TaskViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

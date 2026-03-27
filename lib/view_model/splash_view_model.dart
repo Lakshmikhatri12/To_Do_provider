@@ -1,4 +1,3 @@
-// controllers/splash_controller.dart
 import 'package:flutter/material.dart';
 import 'package:to_do_app/model/user_model.dart';
 import 'package:to_do_app/view/home_screen.dart';

@@ -16,7 +16,7 @@ class CustomMainButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48.h,
+      height: 60.h,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.primary,

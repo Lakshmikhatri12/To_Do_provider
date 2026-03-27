@@ -248,6 +248,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  notch_bottom_navigation:
+    dependency: "direct main"
+    description:
+      name: notch_bottom_navigation
+      sha256: ed298272b912caaa3fda164ee431bd29d48a47487a174ee3bbaad38d3a6448ea
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   objective_c:
     dependency: transitive
     description:

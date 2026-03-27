@@ -36,6 +36,37 @@ class NetworkApiService extends BaseApiServices {
     return responseJson;
   }
 
+  @override
+  Future<dynamic> getPutApiResponse(String url, dynamic data) async {
+    dynamic responseJson;
+    try {
+      final response = await put(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(data),
+      ).timeout(Duration(seconds: 10));
+      responseJson = returnResponse(response);
+    } on SocketException {
+      throw fetchDataExceptions("No internet connection");
+    }
+    return responseJson;
+  }
+
+  @override
+  Future<dynamic> getDeleteApiResponse(String url) async {
+    dynamic responseJson;
+    try {
+      final response = await delete(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+      ).timeout(Duration(seconds: 10));
+      responseJson = returnResponse(response);
+    } on SocketException {
+      throw fetchDataExceptions("No internet connection");
+    }
+    return responseJson;
+  }
+
   dynamic returnResponse(http.Response response) {
     switch (response.statusCode) {
       case 200:
