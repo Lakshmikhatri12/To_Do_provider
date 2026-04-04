@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/Theme/custom_theme/app_theme.dart';
-import 'package:to_do_app/view/splash_screen.dart';
-import 'package:to_do_app/view_model/auth_view_model.dart';
-import 'package:to_do_app/view_model/onboarding_view_model.dart';
-import 'package:to_do_app/view_model/splash_view_model.dart';
-import 'package:to_do_app/view_model/task_view_model.dart';
-import 'package:to_do_app/view_model/user_view_model.dart';
+import 'package:to_do_app/features/onboarding/view_model/onboarding_viewmodel.dart';
+import 'package:to_do_app/features/splash/splash_viewmodel/splash_viewmodel.dart';
+import 'core/di/service_locator.dart';
+import 'core/router/router.dart';
+import 'features/auth/viewmodels/auth_viewmodel.dart';
+import 'features/todo/viewmodels/task_viewmodel.dart';
 
-void main() => runApp(
-  ScreenUtilInit(
-    designSize: const Size(375, 804),
-    minTextAdapt: true,
-    splitScreenMode: true,
-    ensureScreenSize: true,
-    builder: (context, child) => MyApp(),
-  ),
-);
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
+  runApp(
+    ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      ensureScreenSize: true,
+      builder: (context, child) => const MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -26,16 +30,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SplashViewModel()),
-        ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
-        ChangeNotifierProvider(create: (_) => UserViewModel()),
-        ChangeNotifierProvider(create: (_) => AuthViewModel()),
-        ChangeNotifierProvider(create: (_) => TaskViewModel()),
+        ChangeNotifierProvider<AuthViewmodel>(
+          create: (_) => getIt<AuthViewmodel>(),
+        ),
+        ChangeNotifierProvider<SplashViewmodel>(
+          create: (_) => getIt<SplashViewmodel>(),
+        ),
+        ChangeNotifierProvider<TaskViewmodel>(
+          create: (_) => getIt<TaskViewmodel>(),
+        ),
+        ChangeNotifierProvider<OnboardingViewModel>(
+          create: (_) => getIt<OnboardingViewModel>(),
+        ),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
+        routerConfig: router,
         theme: AppTheme.themeData,
-        home: SplashScreen(),
       ),
     );
   }
