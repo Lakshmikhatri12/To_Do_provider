@@ -15,25 +15,44 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: ontap,
-      child: Container(
-        height: 60.h,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(8.r),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        overlayColor: const Color.fromARGB(255, 125, 105, 253),
+        backgroundColor: AppColors.primary,
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(8.r),
         ),
-
-        child: loading
-            ? Center(child: CircularProgressIndicator(color: Colors.white))
-            : Center(
-                child: Text(
-                  text,
-                  style: Theme.of(context).textTheme.displaySmall,
-                ),
-              ),
       ),
+      onPressed: ontap,
+      child: loading
+          ? Center(child: CircularProgressIndicator(color: Colors.white))
+          : Center(
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.displaySmall,
+              ),
+            ),
     );
+    // GestureDetector(
+    //   onTap: ontap,
+    //   child: Container(
+    //     height: 60.h,
+    //     width: double.infinity,
+    //     decoration: BoxDecoration(
+    //       color: AppColors.primary,
+    //       borderRadius: BorderRadius.circular(8.r),
+    //     ),
+
+    //     child: loading
+    //         ? Center(child: CircularProgressIndicator(color: Colors.white))
+    //         : Center(
+    //             child: Text(
+    //               text,
+    //               style: Theme.of(context).textTheme.displaySmall,
+    //             ),
+    //           ),
+    //   ),
+    // );
   }
 }

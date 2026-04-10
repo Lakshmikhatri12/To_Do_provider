@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:to_do_app/core/network/interceptors/auth_interceptors.dart';
+import 'package:to_do_app/core/network/interceptors/connectivity_interceptor.dart';
+import 'package:to_do_app/core/network/interceptors/logger_interceptor.dart';
 import 'package:to_do_app/features/auth/failures/failure.dart';
 
 class ApiService {
@@ -14,43 +17,13 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
     );
 
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final token = await _secureStorage.read(key: 'access_token');
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-          if (kDebugMode) {
-            debugPrint('REQUEST: ${options.method} ${options.uri}');
-            debugPrint('Data: ${options.data}');
-          }
-          handler.next(options);
-        },
-
-        onResponse: (response, handler) {
-          if (kDebugMode) {
-            debugPrint(
-              'RESPONSE: ${response.statusCode} ${response.requestOptions.uri}',
-            );
-          }
-          handler.next(response);
-        },
-
-        onError: (error, handler) async {
-          if (kDebugMode) {
-            debugPrint(
-              'ERROR: ${error.response?.statusCode} ${error.requestOptions.uri}',
-            );
-          }
-
-          if (error.response?.statusCode == 401) {
-            await _secureStorage.delete(key: 'access_token');
-          }
-          handler.next(error);
-        },
-      ),
-    );
+    _dio.interceptors.addAll([
+      AuthInterceptors(_secureStorage),
+      ConnectivityInterceptor(),
+    ]);
+    if (kDebugMode) {
+      _dio.interceptors.add(LoggerInterceptor());
+    }
   }
 
   Future<dynamic> get(String path) async {
@@ -62,7 +35,7 @@ class ApiService {
     }
   }
 
-  Future<dynamic> post(String path, {dynamic, data}) async {
+  Future<dynamic> post(String path, {dynamic data}) async {
     try {
       final response = await _dio.post(path, data: data);
       return response.data;
@@ -92,16 +65,29 @@ class ApiService {
   Failure _handleError(DioException e) {
     switch (e.response?.statusCode) {
       case 400:
-        return BadRequestFailure(
-          e.response?.data?['message'] ??
-              'Invalid username or password. Please check your credentials.',
-        );
+        return BadRequestFailure(e.response?.data?['message'] ?? 'Bad request');
       case 401:
         return UnAuthorizedFailure(
           e.response?.data?['message'] ?? 'Invalid credentials',
         );
+      case 403:
+        return ForbiddenFailure(
+          e.response?.data?['message'] ?? 'Access denied',
+        );
+      case 404:
+        return NotFoundFailure(
+          e.response?.data?['message'] ?? 'Resource not found',
+        );
+      case 422:
+        return ValidationFailure(
+          e.response?.data?['message'] ?? 'Unprocessable entity',
+        );
       case 500:
         return ServerFailure(e.response?.data?['message'] ?? 'Server error');
+      case 503:
+        return ServerFailure(
+          e.response?.data?['message'] ?? 'Server unavailable',
+        );
       default:
         if (e.type == DioExceptionType.connectionError ||
             e.type == DioExceptionType.connectionTimeout) {

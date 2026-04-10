@@ -5,13 +5,14 @@ import 'package:to_do_app/core/network/api_service.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository_impl.dart';
 import 'package:to_do_app/features/auth/services/auth_service.dart';
-import 'package:to_do_app/features/auth/viewmodels/auth_viewmodel.dart';
-import 'package:to_do_app/features/onboarding/view_model/onboarding_viewmodel.dart';
-import 'package:to_do_app/features/splash/splash_viewmodel/splash_viewmodel.dart';
+import 'package:to_do_app/features/auth/services/token_service.dart';
+import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
+import 'package:to_do_app/features/onboarding/view_models/onboarding_viewModel.dart';
+import 'package:to_do_app/features/splash/view_models/splash_viewModel.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository_impl.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
-import 'package:to_do_app/features/todo/viewmodels/task_viewmodel.dart';
+import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -22,6 +23,9 @@ void setupLocator() {
     () => const FlutterSecureStorage(),
   );
 
+  getIt.registerLazySingleton<TokenService>(
+    () => TokenService(getIt<FlutterSecureStorage>()),
+  );
   getIt.registerLazySingleton<ApiService>(
     () => ApiService(getIt<Dio>(), getIt<FlutterSecureStorage>()),
   );
@@ -31,7 +35,7 @@ void setupLocator() {
   );
 
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(getIt<AuthService>()),
+    () => AuthRepositoryImpl(getIt<AuthService>(), getIt<TokenService>()),
   );
 
   getIt.registerLazySingleton<TodoService>(
@@ -42,16 +46,16 @@ void setupLocator() {
     () => TodoRepositoryImpl(getIt<TodoService>()),
   );
 
-  getIt.registerFactory<AuthViewmodel>(
-    () => AuthViewmodel(getIt<AuthRepository>(), getIt<FlutterSecureStorage>()),
+  getIt.registerFactory<AuthViewModel>(
+    () => AuthViewModel(getIt<AuthRepository>()),
   );
 
-  getIt.registerFactory<SplashViewmodel>(
-    () => SplashViewmodel(getIt<FlutterSecureStorage>()),
+  getIt.registerFactory<SplashViewModel>(
+    () => SplashViewModel(getIt<TokenService>()),
   );
 
-  getIt.registerFactory<TaskViewmodel>(
-    () => TaskViewmodel(getIt<TodoRepository>()),
+  getIt.registerFactory<TaskViewModel>(
+    () => TaskViewModel(getIt<TodoRepository>()),
   );
 
   getIt.registerFactory<OnboardingViewModel>(() => OnboardingViewModel());

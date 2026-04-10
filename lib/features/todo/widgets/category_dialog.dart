@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:to_do_app/core/utils/snackbar_utils.dart';
+import 'package:to_do_app/features/todo/widgets/category_helper.dart';
 
 class CategoryDialog extends StatefulWidget {
   const CategoryDialog({super.key});
@@ -10,51 +12,15 @@ class CategoryDialog extends StatefulWidget {
 
 class _CategoryDialogState extends State<CategoryDialog> {
   int _selectedIndex = 0;
-  IconData? icon;
-  Color? color;
-  String? label;
-
-  final List<Color> colors = [
-    const Color(0xFF8875FF),
-    const Color(0xFF4D9FFF),
-    const Color(0xFF00D4D4),
-    const Color(0xFF4CAF82),
-    const Color(0xFFB6E040),
-    const Color(0xFFFFD23F),
-    const Color(0xFFFF8C42),
-    const Color(0xFFFF4D6D),
-    const Color(0xFFFF6EC7),
-    const Color(0xFF4FA4CF),
-    const Color(0xFF3DFABC),
-  ];
-
-  final List<IconData> icons = [
-    Icons.local_grocery_store_outlined,
-    Icons.school_outlined,
-    Icons.design_services_outlined,
-    Icons.campaign,
-    Icons.music_note_outlined,
-    Icons.video_library_outlined,
-    Icons.monitor_heart_outlined,
-    Icons.fitness_center,
-    Icons.home_outlined,
-    Icons.work_outline,
-    Icons.category_outlined,
-  ];
-
-  final List<String> iconLabels = [
-    'Grocery',
-    'Education',
-    'Design',
-    'Social',
-    'Music',
-    'Videos',
-    'Health',
-    'Fitness',
-    'Home',
-    'Work',
-    'Other',
-  ];
+  final List<String> _labels = CategoryHelper.iconMap.keys.toList();
+  void selectCategory() {
+    final label = _labels[_selectedIndex];
+    Navigator.pop(context, {
+      'icon': CategoryHelper.getIcon(label),
+      'label': label,
+      'color': CategoryHelper.getColor(label),
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +50,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
 
             Flexible(
               child: GridView.builder(
-                itemCount: icons.length,
+                itemCount: _labels.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   crossAxisSpacing: 20.w,
@@ -92,14 +58,14 @@ class _CategoryDialogState extends State<CategoryDialog> {
                   mainAxisExtent: 80.h,
                 ),
                 itemBuilder: (context, index) {
+                  final label = _labels[index];
+                  final icons = CategoryHelper.getIcon(label);
+                  final colors = CategoryHelper.getColor(label);
                   final isSelected = _selectedIndex == index;
                   return GestureDetector(
                     onTap: () {
                       setState(() {
                         _selectedIndex = index;
-                        icon = icons[index];
-                        label = iconLabels[index];
-                        color = colors[index];
                       });
                     },
                     child: Column(
@@ -110,23 +76,21 @@ class _CategoryDialogState extends State<CategoryDialog> {
                           width: 60.r,
                           height: 60.r,
                           decoration: BoxDecoration(
-                            color: colors[index].withOpacity(
-                              isSelected ? 1.0 : 0.2,
-                            ),
+                            color: colors.withOpacity(isSelected ? 1.0 : 0.2),
                             borderRadius: BorderRadius.circular(5.r),
                             border: isSelected
                                 ? Border.all(color: Colors.white, width: 2)
                                 : null,
                           ),
                           child: Icon(
-                            icons[index],
-                            color: isSelected ? Colors.white : colors[index],
+                            icons,
+                            color: isSelected ? Colors.white : colors,
                             size: 22.r,
                           ),
                         ),
                         4.verticalSpace,
                         Text(
-                          iconLabels[index],
+                          label,
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 11.sp,
@@ -148,20 +112,10 @@ class _CategoryDialogState extends State<CategoryDialog> {
               height: 52.h,
               child: ElevatedButton(
                 onPressed: () {
-                  if (icon != null && label != null && color != null) {
-                    Navigator.pop(context, {
-                      'icon': icon,
-                      'label': label,
-                      'color': color,
-                    });
+                  if (_selectedIndex >= 0) {
+                    selectCategory();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Please select a category'),
-                        backgroundColor: Colors.red.shade700,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                    SnackBarUtils.showError(context, 'Please select category');
                   }
                 },
                 style: ElevatedButton.styleFrom(

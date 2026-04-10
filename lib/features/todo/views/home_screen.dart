@@ -3,11 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
-import 'package:to_do_app/features/auth/viewmodels/auth_viewmodel.dart';
-import '../viewmodels/task_viewmodel.dart';
-import '../widgets/add_task_sheet.dart';
-import '../widgets/empty_widget.dart';
-import '../widgets/task_card.dart';
+import 'package:to_do_app/core/router/app_routes.dart';
+import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
+import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
+import 'package:to_do_app/features/todo/widgets/add_task_sheet.dart';
+import 'package:to_do_app/features/todo/widgets/empty_widget.dart';
+import 'package:to_do_app/features/todo/widgets/task_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskViewmodel>().getTodos();
+      context.read<TaskViewModel>().getTodos();
     });
   }
 
@@ -44,15 +45,15 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.logout_rounded, color: Colors.white, size: 22.r),
             onPressed: () async {
-              context.read<AuthViewmodel>().logOut();
+              context.read<AuthViewModel>().logOut();
               if (context.mounted) {
-                context.go('/auth/login');
+                context.goNamed(AppRoutes.login);
               }
             },
           ),
         ],
       ),
-      body: Consumer<TaskViewmodel>(
+      body: Consumer<TaskViewModel>(
         builder: (context, vm, _) {
           if (vm.state == TaskState.loading) {
             return const Center(
@@ -89,7 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (_) => const AddTaskSheet(),
+              builder: (_) => ChangeNotifierProvider.value(
+                value: context.read<TaskViewModel>(),
+                child: const AddTaskSheet(),
+              ),
             );
           },
           backgroundColor: const Color(0xFF8875FF),

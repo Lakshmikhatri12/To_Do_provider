@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
+import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
-import 'package:to_do_app/features/todo/models/task_model.dart';
+import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
-import 'package:to_do_app/features/todo/viewmodels/task_viewmodel.dart';
+import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final TaskModel task;
@@ -18,9 +19,6 @@ class EditTaskScreen extends StatefulWidget {
 class _EditTaskScreenState extends State<EditTaskScreen> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
-
-  String? _selectedCategory;
-  int _selectedPriority = 1;
   DateTime? _selectedDateTime;
 
   @override
@@ -28,8 +26,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.task.title);
     _descController = TextEditingController(text: widget.task.description);
-    _selectedCategory = widget.task.category;
-    _selectedPriority = widget.task.priority;
     _selectedDateTime = widget.task.dateTime;
   }
 
@@ -42,25 +38,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
   void _onUpdate() async {
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please enter task title'),
-          backgroundColor: Colors.red.shade700,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      SnackBarUtils.showError(context, 'Please enter task title');
       return;
     }
 
     final updatedTask = widget.task.copyWith(
       title: _titleController.text.trim(),
       description: _descController.text.trim(),
-      category: _selectedCategory,
-      priority: _selectedPriority,
       dateTime: _selectedDateTime,
     );
 
-    await context.read<TaskViewmodel>().updateTodo(updatedTask);
+    await context.read<TaskViewModel>().updateTodo(updatedTask);
 
     if (!mounted) return;
     Navigator.pop(context);
@@ -94,6 +82,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
             _buildLabel('Description'),
             8.verticalSpace,
+
             _buildTextField(
               controller: _descController,
               hint: 'Description (optional)',
@@ -103,6 +92,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
             _buildLabel('Date & Time'),
             8.verticalSpace,
+
             GestureDetector(
               onTap: () async {
                 final dateTime = await DatePickerService.pickDateTime(context);
@@ -147,7 +137,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
             40.verticalSpace,
 
-            Consumer<TaskViewmodel>(
+            Consumer<TaskViewModel>(
               builder: (context, vm, _) {
                 return CustomButton(
                   text: "Update Task",

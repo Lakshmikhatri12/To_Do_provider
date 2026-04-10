@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
+import 'package:to_do_app/gen/assets.gen.dart';
 
 class EmptyWidget extends StatelessWidget {
   const EmptyWidget({super.key});
@@ -14,7 +15,7 @@ class EmptyWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Image.asset(
-          'assets/empty.png',
+          Assets.images.empty.path,
           height: 277,
           width: 277,
           fit: BoxFit.contain,

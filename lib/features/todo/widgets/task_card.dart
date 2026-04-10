@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
+import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
+import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
+import 'package:to_do_app/features/todo/views/edit_task_screen.dart';
 import 'package:to_do_app/features/todo/widgets/category_helper.dart';
-import '../models/task_model.dart';
-import '../viewmodels/task_viewmodel.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskModel task;
@@ -36,7 +36,7 @@ class TaskCard extends StatelessWidget {
           child: Icon(Icons.delete, color: Colors.white, size: 28.r),
         ),
         onDismissed: (_) {
-          context.read<TaskViewmodel>().deleteTodo(task);
+          context.read<TaskViewModel>().deleteTodo(task);
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -51,7 +51,7 @@ class TaskCard extends StatelessWidget {
                 checkColor: AppColors.primary,
                 value: task.completed,
                 onChanged: (val) {
-                  context.read<TaskViewmodel>().toggleComplete(task);
+                  context.read<TaskViewModel>().toggleComplete(task);
                 },
               ),
               10.horizontalSpace,
@@ -131,7 +131,7 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                     8.horizontalSpace,
-                    if (task.priority != 1)
+                    if (task.priority > 0)
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 6,
@@ -162,7 +162,16 @@ class TaskCard extends StatelessWidget {
                     8.horizontalSpace,
                     GestureDetector(
                       onTap: () {
-                        context.push('/edit', extra: task);
+                        //  context.pushNamed(AppRoutes.edit, extra: task);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChangeNotifierProvider.value(
+                              value: context.read<TaskViewModel>(),
+                              child: EditTaskScreen(task: task),
+                            ),
+                          ),
+                        );
                       },
                       child: Icon(Icons.edit, color: Colors.white, size: 18.r),
                     ),

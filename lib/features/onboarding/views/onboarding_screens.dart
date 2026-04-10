@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
-import 'package:to_do_app/features/onboarding/view_model/onboarding_viewmodel.dart';
+import 'package:to_do_app/core/router/app_routes.dart';
+import 'package:to_do_app/features/onboarding/view_models/onboarding_viewModel.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -22,7 +23,7 @@ class OnboardingScreen extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: TextButton(
                     onPressed: () {
-                      context.go('/start');
+                      context.goNamed(AppRoutes.start);
                     },
                     child: Text(
                       "SKIP",
@@ -45,7 +46,7 @@ class OnboardingScreen extends StatelessWidget {
                         return Column(
                           children: [
                             Image.asset(
-                              vm.pages[vm.currentPage]['image']!,
+                              vm.pages[vm.currentPage].image,
                               height: 278.h,
                               width: 213.w,
                               fit: BoxFit.contain,
@@ -62,13 +63,13 @@ class OnboardingScreen extends StatelessWidget {
                             ),
                             42.verticalSpace,
                             Text(
-                              vm.pages[vm.currentPage]['title']!,
+                              vm.pages[vm.currentPage].title,
                               style: Theme.of(context).textTheme.displayLarge,
                             ),
                             42.verticalSpace,
                             Text(
                               textAlign: TextAlign.center,
-                              vm.pages[vm.currentPage]['subtitle']!,
+                              vm.pages[vm.currentPage].subtitle,
                               style: Theme.of(context).textTheme.displaySmall,
                             ),
                           ],
@@ -101,7 +102,7 @@ class OnboardingScreen extends StatelessWidget {
                         onPressed: vm.currentPage < vm.pages.length - 1
                             ? vm.nextPage
                             : () {
-                                context.go('/start');
+                                context.goNamed(AppRoutes.start);
                               },
                         child: Text(
                           vm.currentPage < vm.pages.length - 1

@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_app/features/onboarding/models/onboarding_page_model.dart';
+import 'package:to_do_app/gen/assets.gen.dart';
 
 class OnboardingViewModel extends ChangeNotifier {
   final PageController controller = PageController();
 
-  final List<Map<String, String>> pages = [
-    {
-      "image": "assets/1.png",
-      "title": "Manage your tasks",
-      "subtitle":
-          "You can manage easily all of your daily tasks in DoMe for free",
-    },
-    {
-      "image": "assets/2.png",
-      "title": "Create daily routine",
-      "subtitle":
+  final List<OnboardingPageModel> pages = [
+    OnboardingPageModel(
+      image: Assets.images.a1.path,
+      title: "Manage your tasks",
+      subtitle:
+          "You can manage easily all of your daily tasks in DoMe for free.",
+    ),
+    OnboardingPageModel(
+      image: Assets.images.a2.path,
+      title: "Create daily routine",
+      subtitle:
           "In UpToDo you can create your personalized routine to stay productive.",
-    },
-    {
-      "image": "assets/3.png",
-      "title": "Organize your tasks",
-      "subtitle":
-          "You can manage easily all of your daily tasks in DoMe for free",
-    },
+    ),
+    OnboardingPageModel(
+      image: Assets.images.a3.path,
+      title: "Organize your tasks",
+      subtitle:
+          "You can manage easily all of your daily tasks in DoMe for free.",
+    ),
   ];
 
   int currentPage = 0;

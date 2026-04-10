@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
-import 'package:to_do_app/features/auth/views/login_screen.dart';
+import 'package:to_do_app/core/router/app_routes.dart';
 
 class GetStartScreen extends StatelessWidget {
   const GetStartScreen({super.key});
@@ -36,7 +36,7 @@ class GetStartScreen extends StatelessWidget {
               ),
               child: TextButton(
                 onPressed: () {
-                  context.go('/auth/login');
+                  context.goNamed(AppRoutes.login);
                 },
                 child: Text(
                   "LogIn",
@@ -54,7 +54,7 @@ class GetStartScreen extends StatelessWidget {
               ),
               child: TextButton(
                 onPressed: () {
-                  context.go('/auth/signup');
+                  context.go(AppRoutes.signupPath);
                 },
                 child: Text(
                   "Create Account",

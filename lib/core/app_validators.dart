@@ -39,7 +39,6 @@ class AppValidators {
     return null;
   }
 
-  // ─── Name ───────────────────────────────────
   static String? name(String? val) {
     if (val == null || val.trim().isEmpty) {
       return 'This field is required';
@@ -50,7 +49,6 @@ class AppValidators {
     return null;
   }
 
-  // ─── Required ───────────────────────────────
   static String? required(String? val) {
     if (val == null || val.trim().isEmpty) {
       return 'This field is required';

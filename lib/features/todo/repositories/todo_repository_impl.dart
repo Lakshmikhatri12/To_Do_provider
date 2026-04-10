@@ -1,4 +1,4 @@
-import 'package:to_do_app/features/todo/models/task_model.dart';
+import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
 

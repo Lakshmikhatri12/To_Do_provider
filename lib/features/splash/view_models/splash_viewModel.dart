@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:to_do_app/features/auth/services/token_service.dart';
 
 enum SplashState { loading, authenticated, unauthenticated }
 
-class SplashViewmodel extends ChangeNotifier {
-  final FlutterSecureStorage _secureStorage;
+class SplashViewModel extends ChangeNotifier {
+  final TokenService _tokenService;
 
-  SplashViewmodel(this._secureStorage);
+  SplashViewModel(this._tokenService);
 
   SplashState state = SplashState.loading;
 
@@ -14,7 +14,7 @@ class SplashViewmodel extends ChangeNotifier {
     await Future.delayed(const Duration(seconds: 2));
 
     try {
-      final token = await _secureStorage.read(key: 'access_token');
+      final token = await _tokenService.getToken();
       if (token != null && token.isNotEmpty) {
         state = SplashState.authenticated;
       } else {
@@ -22,7 +22,7 @@ class SplashViewmodel extends ChangeNotifier {
       }
     } catch (e) {
       state = SplashState.unauthenticated;
-      debugPrint('Splash error: $e');
+      if (kDebugMode) debugPrint('Splash error: $e');
     }
     notifyListeners();
   }

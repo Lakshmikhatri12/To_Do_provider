@@ -3,10 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/app_validators.dart';
-import 'package:to_do_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:to_do_app/core/router/app_routes.dart';
+import 'package:to_do_app/core/utils/snackbar_utils.dart';
+import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
 import 'package:to_do_app/features/auth/widgets/custom_textfield.dart';
 import 'package:to_do_app/features/auth/widgets/social_button.dart';
+import 'package:to_do_app/gen/assets.gen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,18 +23,78 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  late AuthViewModel _vm; // <-- store reference
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _vm = context.read<AuthViewModel>(); // <-- ek baar store karo
+      _vm.addListener(onAuthStateChanged);
+    });
+  }
+
+  void onAuthStateChanged() {
+    if (!mounted) return;
+    if (_vm.loginState == AuthState.success) {
+      _vm.resetLogin();
+      context.goNamed(AppRoutes.home);
+    }
+    if (_vm.loginState == AuthState.error) {
+      SnackBarUtils.showError(context, _vm.errorMessage!);
+      _vm.resetLogin();
+    }
+  }
+
+  void _login() {
+    if (!_formKey.currentState!.validate()) return;
+    _vm.login(_usernameController.text.trim(), _passwordController.text.trim());
+  }
 
   @override
   void dispose() {
+    _vm.removeListener(onAuthStateChanged);
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _login(AuthViewmodel vm) {
-    if (!_formKey.currentState!.validate()) return;
-    vm.login(_usernameController.text.trim(), _passwordController.text.trim());
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     final vm = context.read<AuthViewModel>();
+  //     vm.addListener(onAuthStateChanged);
+  //   });
+  // }
+
+  // void onAuthStateChanged() {
+  //   if (!mounted) return;
+  //   final vm = context.read<AuthViewModel>();
+  //   if (vm.loginState == AuthState.success) {
+  //     vm.resetLogin();
+  //     context.goNamed(AppRoutes.home);
+  //   }
+  //   if (vm.loginState == AuthState.error) {
+  //     SnackBarUtils.showError(context, vm.errorMessage!);
+  //     vm.resetLogin();
+  //   }
+  // }
+
+  // void _login() {
+  //   if (!_formKey.currentState!.validate()) return;
+  //   final vm = context.read<AuthViewModel>();
+  //   vm.login(_usernameController.text.trim(), _passwordController.text.trim());
+  // }
+
+  // @override
+  // void dispose() {
+  //   final vm = context.read<AuthViewModel>();
+  //   vm.removeListener(onAuthStateChanged);
+  //   _usernameController.dispose();
+  //   _passwordController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -40,32 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(24.h),
-          child: Consumer<AuthViewmodel>(
+          child: Consumer<AuthViewModel>(
             builder: (context, vm, _) {
-              if (vm.loginState == AuthState.success) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  vm.resetLogin();
-                  context.go('/home');
-                });
-              }
-              if (vm.loginState == AuthState.error && vm.errorMessage != null) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        vm.errorMessage!,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.red.shade700,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                  vm.resetLogin();
-                });
-              }
               return Form(
                 key: _formKey,
                 child: Column(
@@ -77,26 +116,37 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: Theme.of(context).textTheme.displayLarge,
                     ),
                     53.verticalSpace,
-                    CustomTextfield(
-                      validator: AppValidators.name,
+                    CustomTextfield.auth(
+                      validator: AppValidators.username,
                       controller: _usernameController,
                       hint: "Enter your name",
                       title: "Name",
-                      obsecureText: false,
+                      obscureText: false,
                     ),
                     25.verticalSpace,
-                    CustomTextfield(
+                    CustomTextfield.auth(
                       validator: AppValidators.password,
                       controller: _passwordController,
                       hint: "********",
                       title: "Password",
-                      obsecureText: _obscurePassword,
+                      obscureText: _obscurePassword,
+                      suffixIcon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: Colors.white,
+                      ),
+                      onSuffixTap: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
                     69.verticalSpace,
                     CustomButton(
                       loading: vm.loginState == AuthState.loading,
                       text: "Login",
-                      ontap: () => _login(vm),
+                      ontap: () => _login(),
                     ),
                     31.verticalSpace,
                     Row(
@@ -115,13 +165,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     29.verticalSpace,
                     SocialButton(
-                      image: 'assets/google.png',
+                      image: Assets.icons.google.path,
                       title: 'Login with Google',
                       ontap: () {},
                     ),
                     20.verticalSpace,
                     SocialButton(
-                      image: 'assets/apple.png',
+                      image: Assets.icons.apple.path,
                       title: 'Login with Apple',
                       ontap: () {},
                     ),
@@ -138,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              context.go('/auth/signup');
+                              context.pushNamed(AppRoutes.signup);
                             },
                             child: Text(
                               "Register",
@@ -162,6 +212,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-// username: emilys
-// password: emilyspass

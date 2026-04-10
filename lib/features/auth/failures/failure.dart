@@ -18,3 +18,15 @@ class UnAuthorizedFailure extends Failure {
 class BadRequestFailure extends Failure {
   const BadRequestFailure(String message) : super(message);
 }
+
+class ForbiddenFailure extends Failure {
+  const ForbiddenFailure(String message) : super(message);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure(String message) : super(message);
+}
+
+class NotFoundFailure extends Failure {
+  const NotFoundFailure(String message) : super(message);
+}

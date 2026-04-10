@@ -3,10 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/app_validators.dart';
-import 'package:to_do_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:to_do_app/core/router/app_routes.dart';
+import 'package:to_do_app/core/utils/snackbar_utils.dart';
+import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
 import 'package:to_do_app/features/auth/widgets/custom_textfield.dart';
 import 'package:to_do_app/features/auth/widgets/social_button.dart';
+import 'package:to_do_app/gen/assets.gen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,25 +22,53 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool obscurePassword = true;
+  bool obscureonfirmPassword = true;
   final _formKey = GlobalKey<FormState>();
+  late AuthViewModel _vm;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _vm = context.read<AuthViewModel>();
+      _vm.addListener(onsignupStateChanged);
+    });
+  }
+
+  void _signup() {
+    if (!_formKey.currentState!.validate()) return;
+    if (_passwordController.text != _confirmPasswordController.text) {
+      SnackBarUtils.showError(context, 'Password do not match');
+      return;
+    }
+    _vm.signup(
+      username: _usernameController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+  }
+
+  void onsignupStateChanged() {
+    if (!mounted) return;
+    if (_vm.signUpState == AuthState.success) {
+      _vm.resetSignupState();
+      SnackBarUtils.showSuccess(context, 'Account created successfully!');
+      context.goNamed(AppRoutes.login);
+    }
+    if (_vm.signUpState == AuthState.error) {
+      SnackBarUtils.showError(context, _vm.errorMessage!);
+      _vm.resetSignupState();
+    }
+  }
 
   @override
   void dispose() {
+    _vm.removeListener(onsignupStateChanged);
     _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  void _signup(AuthViewmodel vm) {
-    if (!_formKey.currentState!.validate()) return;
-    if (_passwordController.text != _confirmPasswordController.text) {
-      return;
-    }
-    vm.signup(
-      userName: _usernameController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
   }
 
   @override
@@ -47,40 +78,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(24.h),
-          child: Consumer<AuthViewmodel>(
+          child: Consumer<AuthViewModel>(
             builder: (context, vm, child) {
-              if (vm.signUpState == AuthState.success) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  vm.resetSignupState();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        'Account created! Please login.',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.green.shade600,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                  context.go('/auth/login');
-                });
-              }
-              if (vm.signUpState == AuthState.error &&
-                  vm.errorMessage != null) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        vm.errorMessage!,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.red.shade700,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                  vm.resetSignupState();
-                });
-              }
               return Form(
                 key: _formKey,
                 child: Column(
@@ -91,25 +90,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: Theme.of(context).textTheme.displayLarge,
                     ),
                     23.verticalSpace,
-                    CustomTextfield(
+                    CustomTextfield.auth(
                       controller: _usernameController,
                       validator: AppValidators.name,
                       hint: "Enter your name",
                       title: "Name",
-                      obsecureText: false,
+                      obscureText: false,
                     ),
                     23.verticalSpace,
-
-                    CustomTextfield(
-                      controller: _passwordController,
+                    CustomTextfield.auth(
                       validator: AppValidators.password,
+                      controller: _passwordController,
                       hint: "********",
                       title: "Password",
-                      obsecureText: true,
+                      obscureText: obscurePassword,
+                      suffixIcon: Icon(
+                        obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: Colors.white,
+                      ),
+                      onSuffixTap: () {
+                        setState(() {
+                          obscurePassword = !obscurePassword;
+                        });
+                      },
                     ),
                     23.verticalSpace,
-
-                    CustomTextfield(
+                    CustomTextfield.auth(
                       controller: _confirmPasswordController,
                       validator: (val) {
                         return AppValidators.confirmPassword(
@@ -119,13 +127,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                       hint: "********",
                       title: "Confirm Password",
-                      obsecureText: true,
+                      obscureText: obscureonfirmPassword,
+                      suffixIcon: Icon(
+                        obscureonfirmPassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: Colors.white,
+                      ),
+                      onSuffixTap: () {
+                        setState(() {
+                          obscureonfirmPassword = !obscureonfirmPassword;
+                        });
+                      },
                     ),
                     40.verticalSpace,
                     CustomButton(
                       loading: vm.signUpState == AuthState.loading,
                       text: 'Register',
-                      ontap: () => _signup(vm),
+                      ontap: () => _signup(),
                     ),
                     18.verticalSpace,
                     Row(
@@ -144,13 +163,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     18.verticalSpace,
                     SocialButton(
-                      image: 'assets/google.png',
+                      image: Assets.icons.google.path,
                       title: 'Login with Google',
                       ontap: () {},
                     ),
                     17.verticalSpace,
                     SocialButton(
-                      image: 'assets/apple.png',
+                      image: Assets.icons.apple.path,
                       title: 'Login with Apple',
                       ontap: () {},
                     ),
@@ -167,7 +186,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              context.pushNamed('/auth/login');
+                              context.pushNamed(AppRoutes.login);
                             },
                             child: Text(
                               "Login",
