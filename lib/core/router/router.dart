@@ -5,10 +5,10 @@ import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/auth/services/token_service.dart';
 import 'package:to_do_app/features/auth/views/login_screen.dart';
 import 'package:to_do_app/features/auth/views/signup_screen.dart';
-import 'package:to_do_app/features/onboarding/view_models/onboarding_viewModel.dart';
+import 'package:to_do_app/features/onboarding/view_models/onboarding_view_model.dart';
 import 'package:to_do_app/features/onboarding/views/get_start_screen.dart';
 import 'package:to_do_app/features/onboarding/views/onboarding_screens.dart';
-import 'package:to_do_app/features/splash/view_models/splash_viewModel.dart';
+import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
 import 'package:to_do_app/features/splash/views/splash_screen.dart';
 import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
 import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
@@ -78,9 +78,12 @@ final router = GoRouter(
     GoRoute(
       path: AppRoutes.editPath,
       name: AppRoutes.edit,
-      builder: (_, state) {
+      builder: (context, state) {
         final task = state.extra as TaskModel;
-        return EditTaskScreen(task: task);
+        return ChangeNotifierProvider.value(
+          value: getIt<TaskViewModel>(),
+          child: EditTaskScreen(task: task),
+        );
       },
     ),
   ],

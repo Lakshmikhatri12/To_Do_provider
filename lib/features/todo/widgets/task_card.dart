@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
+import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
 import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
 import 'package:to_do_app/features/todo/views/edit_task_screen.dart';
@@ -162,16 +164,16 @@ class TaskCard extends StatelessWidget {
                     8.horizontalSpace,
                     GestureDetector(
                       onTap: () {
-                        //  context.pushNamed(AppRoutes.edit, extra: task);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChangeNotifierProvider.value(
-                              value: context.read<TaskViewModel>(),
-                              child: EditTaskScreen(task: task),
-                            ),
-                          ),
-                        );
+                        context.pushNamed(AppRoutes.edit, extra: task);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (_) => ChangeNotifierProvider.value(
+                        //       value: context.read<TaskViewModel>(),
+                        //       child: EditTaskScreen(task: task),
+                        //     ),
+                        //   ),
+                        // );
                       },
                       child: Icon(Icons.edit, color: Colors.white, size: 18.r),
                     ),

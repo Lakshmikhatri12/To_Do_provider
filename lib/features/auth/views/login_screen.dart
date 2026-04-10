@@ -23,13 +23,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
-  late AuthViewModel _vm; // <-- store reference
+  late AuthViewModel _vm;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _vm = context.read<AuthViewModel>(); // <-- ek baar store karo
+      _vm = context.read<AuthViewModel>();
       _vm.addListener(onAuthStateChanged);
     });
   }
@@ -58,43 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     final vm = context.read<AuthViewModel>();
-  //     vm.addListener(onAuthStateChanged);
-  //   });
-  // }
-
-  // void onAuthStateChanged() {
-  //   if (!mounted) return;
-  //   final vm = context.read<AuthViewModel>();
-  //   if (vm.loginState == AuthState.success) {
-  //     vm.resetLogin();
-  //     context.goNamed(AppRoutes.home);
-  //   }
-  //   if (vm.loginState == AuthState.error) {
-  //     SnackBarUtils.showError(context, vm.errorMessage!);
-  //     vm.resetLogin();
-  //   }
-  // }
-
-  // void _login() {
-  //   if (!_formKey.currentState!.validate()) return;
-  //   final vm = context.read<AuthViewModel>();
-  //   vm.login(_usernameController.text.trim(), _passwordController.text.trim());
-  // }
-
-  // @override
-  // void dispose() {
-  //   final vm = context.read<AuthViewModel>();
-  //   vm.removeListener(onAuthStateChanged);
-  //   _usernameController.dispose();
-  //   _passwordController.dispose();
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {

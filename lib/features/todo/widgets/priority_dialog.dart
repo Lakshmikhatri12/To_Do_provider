@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
+import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
 
 class PriorityDialog extends StatefulWidget {
@@ -11,7 +12,7 @@ class PriorityDialog extends StatefulWidget {
 }
 
 class _PriorityDialogState extends State<PriorityDialog> {
-  int _selectedIndex = 0;
+  int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +100,7 @@ class _PriorityDialogState extends State<PriorityDialog> {
             CustomButton(
               text: "Select Priority",
               ontap: () {
-                Navigator.pop(context, _selectedIndex + 1);
+                Navigator.pop(context, _selectedIndex! + 1);
               },
             ),
           ],

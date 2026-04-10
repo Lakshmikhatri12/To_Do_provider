@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
-import 'package:to_do_app/features/onboarding/view_models/onboarding_viewModel.dart';
+import 'package:to_do_app/features/onboarding/view_models/onboarding_view_model.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});

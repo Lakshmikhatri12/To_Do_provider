@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
-import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/widgets/custom_textfield.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
 import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
@@ -51,9 +50,35 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
 
   void pickDateTime() async {
     final dateTime = await DatePickerService.pickDateTime(context);
-    if (dateTime != null) {
+    if (dateTime != null && mounted) {
       setState(() {
         _selectedDateTime = dateTime;
+      });
+    }
+  }
+
+  void showCategoryDialod() async {
+    final result = await showDialog(
+      context: context,
+      builder: (_) => const CategoryDialog(),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _selectedIcon = result['icon'];
+        _selectedLabel = result['label'];
+        _selectedColor = result['color'];
+      });
+    }
+  }
+
+  void showPriorityDialog() async {
+    final priority = await showDialog<int>(
+      context: context,
+      builder: (_) => const PriorityDialog(),
+    );
+    if (priority != null && mounted) {
+      setState(() {
+        _selectedPriority = priority;
       });
     }
   }
@@ -126,19 +151,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 16.horizontalSpace,
 
                 GestureDetector(
-                  onTap: () async {
-                    final result = await showDialog(
-                      context: context,
-                      builder: (_) => const CategoryDialog(),
-                    );
-                    if (result != null) {
-                      setState(() {
-                        _selectedIcon = result['icon'];
-                        _selectedLabel = result['label'];
-                        _selectedColor = result['color'];
-                      });
-                    }
-                  },
+                  onTap: () => showCategoryDialod(),
                   child: _selectedLabel == null
                       ? Icon(
                           Icons.label_important_outline,
@@ -180,17 +193,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 ),
                 16.horizontalSpace,
                 GestureDetector(
-                  onTap: () async {
-                    final priority = await showDialog<int>(
-                      context: context,
-                      builder: (_) => const PriorityDialog(),
-                    );
-                    if (priority != null) {
-                      setState(() {
-                        _selectedPriority = priority;
-                      });
-                    }
-                  },
+                  onTap: () => showPriorityDialog(),
                   child: _selectedPriority == null
                       ? Icon(
                           Icons.flag_outlined,
@@ -232,8 +235,6 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 ),
 
                 const Spacer(),
-
-                // Send Button
                 IconButton(
                   onPressed: () => _onSend(),
                   icon: Icon(

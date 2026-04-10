@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
-import 'package:to_do_app/features/splash/view_models/splash_viewModel.dart';
+import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
 import 'package:to_do_app/gen/assets.gen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,12 +19,6 @@ class _SplashScreenState extends State<SplashScreen>
   late SplashViewModel vm;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    vm = context.read<SplashViewModel>();
-  }
-
-  @override
   void initState() {
     super.initState();
     controller = AnimationController(
@@ -32,7 +26,11 @@ class _SplashScreenState extends State<SplashScreen>
       duration: Duration(seconds: 3),
     )..forward();
 
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   vm.addListener(onSplashStateChanged);
+    //   vm.checkAuth();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      vm = context.read<SplashViewModel>();
       vm.addListener(onSplashStateChanged);
       vm.checkAuth();
     });

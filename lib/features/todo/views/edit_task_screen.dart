@@ -54,6 +54,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     Navigator.pop(context);
   }
 
+  void pickDate() async {
+    final dateTime = await DatePickerService.pickDateTime(context);
+    if (dateTime != null) {
+      setState(() {
+        _selectedDateTime = dateTime;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,48 +102,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             _buildLabel('Date & Time'),
             8.verticalSpace,
 
-            GestureDetector(
-              onTap: () async {
-                final dateTime = await DatePickerService.pickDateTime(context);
-                if (dateTime != null) {
-                  setState(() {
-                    _selectedDateTime = dateTime;
-                  });
-                }
-              },
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2C2C2E),
-                  borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(color: Colors.white12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_month_outlined,
-                      color: AppColors.primary,
-                      size: 18.r,
-                    ),
-                    10.horizontalSpace,
-                    Text(
-                      _selectedDateTime != null
-                          ? '${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}'
-                                ' - ${_selectedDateTime!.hour}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}'
-                          : 'Select Date & Time',
-                      style: TextStyle(
-                        color: _selectedDateTime != null
-                            ? Colors.white
-                            : Colors.white38,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _buildTextField(
+              ontap: () => pickDate(),
+              readOnly: true,
+              icon: Icons.calendar_month_outlined,
+              hint: _selectedDateTime != null
+                  ? '${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}'
+                        ' - ${_selectedDateTime!.hour}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}'
+                  : 'Select Date & Time',
             ),
-
             40.verticalSpace,
 
             Consumer<TaskViewModel>(
@@ -165,19 +141,25 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   }
 
   Widget _buildTextField({
-    required TextEditingController controller,
+    bool readOnly = false,
+    VoidCallback? ontap,
+    TextEditingController? controller,
     required String hint,
     int maxLines = 1,
+    IconData? icon,
   }) {
     return TextField(
+      onTap: ontap,
+      readOnly: readOnly,
       controller: controller,
       maxLines: maxLines,
       style: TextStyle(color: Colors.white, fontSize: 14.sp),
       decoration: InputDecoration(
+        prefixIcon: icon != null
+            ? Icon(icon, color: Colors.white, size: 18.r)
+            : null,
         hintText: hint,
         hintStyle: TextStyle(color: Colors.white38, fontSize: 14.sp),
-        filled: true,
-        fillColor: const Color(0xFF2C2C2E),
         contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),

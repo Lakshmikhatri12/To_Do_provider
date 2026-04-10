@@ -34,25 +34,5 @@ class CustomButton extends StatelessWidget {
               ),
             ),
     );
-    // GestureDetector(
-    //   onTap: ontap,
-    //   child: Container(
-    //     height: 60.h,
-    //     width: double.infinity,
-    //     decoration: BoxDecoration(
-    //       color: AppColors.primary,
-    //       borderRadius: BorderRadius.circular(8.r),
-    //     ),
-
-    //     child: loading
-    //         ? Center(child: CircularProgressIndicator(color: Colors.white))
-    //         : Center(
-    //             child: Text(
-    //               text,
-    //               style: Theme.of(context).textTheme.displaySmall,
-    //             ),
-    //           ),
-    //   ),
-    // );
   }
 }

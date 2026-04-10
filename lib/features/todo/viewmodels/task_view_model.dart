@@ -14,12 +14,6 @@ class TaskViewModel extends ChangeNotifier {
   List<TaskModel> tasks = [];
   String? errorMessage;
 
-  // IconData? categoryIcon;
-  // String? categoryLabel;
-  // Color? categoryColor;
-  // int selectedPriority = 1;
-  //DateTime? selectedDateTime;
-
   Future<void> getTodos() async {
     state = TaskState.loading;
     errorMessage = null;
@@ -64,19 +58,9 @@ class TaskViewModel extends ChangeNotifier {
         category: request.category,
         dateTime: request.dateTime,
       );
-      // final updatedTask = newTask.copyWith(
-      //   description: description ?? '',
-      //   priority: priority ?? 0,
-      //   category: category,
-      //   dateTime: dateTime,
-      // );
       tasks.insert(0, updatedTask);
-      //  debugPrint('Task created: ${updatedTask.title}');
-
-      // _clearTaskState();
     } catch (e) {
       errorMessage = 'Failed to create task. Please try again.';
-      //  debugPrint('createTodo error: $e');
     } finally {
       notifyListeners();
     }
@@ -93,11 +77,9 @@ class TaskViewModel extends ChangeNotifier {
       if (task.id <= kMaxRemoteTaskId) {
         await _taskrepo.updateTodo(task.id, {'completed': !task.completed});
       }
-      // debugPrint('Toggled: ${task.title}');
     } catch (e) {
       tasks[idx] = task;
       errorMessage = 'Failed to update task.';
-      // debugPrint('toggleComplete error: $e');
       notifyListeners();
     }
   }
@@ -111,14 +93,12 @@ class TaskViewModel extends ChangeNotifier {
     if (idx != -1) {
       tasks[idx] = task;
     }
-
     try {
       if (task.id <= kMaxRemoteTaskId) {
         await _taskrepo.updateTodo(task.id, task.toJson());
       }
-      //   debugPrint('Task updated: ${task.title}');
     } catch (e) {
-      //   debugPrint('Update failed: $e');
+      debugPrint('Update failed: $e');
     } finally {
       state = TaskState.idle;
       notifyListeners();
@@ -134,26 +114,12 @@ class TaskViewModel extends ChangeNotifier {
 
     try {
       await _taskrepo.deleteTodo(task.id);
-      //   debugPrint('Task deleted: ${task.title}');
     } catch (e) {
       tasks.insert(idx, removedTask);
       errorMessage = 'Failed to delete task. Please try again.';
       notifyListeners();
     }
   }
-
-  // void setDateTime(DateTime? dateTime) {
-  //   selectedDateTime = dateTime;
-  //   notifyListeners();
-  // }
-
-  // void _clearTaskState() {
-  //   // categoryIcon = null;
-  //   // categoryLabel = null;
-  //   // categoryColor = null;
-  //   // selectedPriority = 1;
-  //   selectedDateTime = null;
-  // }
 
   void resetState() {
     state = TaskState.idle;

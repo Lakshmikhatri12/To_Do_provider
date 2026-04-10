@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/todo/widgets/category_helper.dart';
 
 class CategoryDialog extends StatefulWidget {
@@ -11,10 +10,10 @@ class CategoryDialog extends StatefulWidget {
 }
 
 class _CategoryDialogState extends State<CategoryDialog> {
-  int _selectedIndex = 0;
+  int? _selectedIndex;
   final List<String> _labels = CategoryHelper.iconMap.keys.toList();
   void selectCategory() {
-    final label = _labels[_selectedIndex];
+    final label = _labels[_selectedIndex!];
     Navigator.pop(context, {
       'icon': CategoryHelper.getIcon(label),
       'label': label,
@@ -112,11 +111,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
               height: 52.h,
               child: ElevatedButton(
                 onPressed: () {
-                  if (_selectedIndex >= 0) {
-                    selectCategory();
-                  } else {
-                    SnackBarUtils.showError(context, 'Please select category');
-                  }
+                  selectCategory();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8875FF),
