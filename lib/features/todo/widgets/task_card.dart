@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
-import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
-import 'package:to_do_app/features/todo/views/edit_task_screen.dart';
+import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/widgets/category_helper.dart';
 
 class TaskCard extends StatelessWidget {
@@ -15,10 +15,7 @@ class TaskCard extends StatelessWidget {
   const TaskCard({super.key, required this.task});
 
   String _formatDate(DateTime dt) {
-    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final period = dt.hour >= 12 ? 'PM' : 'AM';
-    return '${dt.day}/${dt.month}/${dt.year} - $hour:$minute $period';
+    return DateFormat('d/M/yyyy - h:mm a').format(dt);
   }
 
   @override
@@ -43,7 +40,7 @@ class TaskCard extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFF2C2C2E),
+            color: AppColors.cardColor,
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Row(
@@ -165,15 +162,6 @@ class TaskCard extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         context.pushNamed(AppRoutes.edit, extra: task);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (_) => ChangeNotifierProvider.value(
-                        //       value: context.read<TaskViewModel>(),
-                        //       child: EditTaskScreen(task: task),
-                        //     ),
-                        //   ),
-                        // );
                       },
                       child: Icon(Icons.edit, color: Colors.white, size: 18.r),
                     ),

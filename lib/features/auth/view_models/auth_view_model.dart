@@ -13,12 +13,13 @@ class AuthViewModel extends ChangeNotifier {
 
   AuthState loginState = AuthState.idle;
   AuthState signUpState = AuthState.idle;
-  String? errorMessage;
+  String? loginErrorMessage;
+  String? signUpErrorMessage;
   UserModel? currentUser;
 
   Future<void> login(String username, String password) async {
     loginState = AuthState.loading;
-    errorMessage = null;
+    loginErrorMessage = null;
     notifyListeners();
 
     try {
@@ -30,7 +31,7 @@ class AuthViewModel extends ChangeNotifier {
       loginState = AuthState.success;
     } on Failure catch (e) {
       loginState = AuthState.error;
-      errorMessage = e.message;
+      loginErrorMessage = e.message;
     } finally {
       notifyListeners();
     }
@@ -41,7 +42,7 @@ class AuthViewModel extends ChangeNotifier {
     required String password,
   }) async {
     signUpState = AuthState.loading;
-    errorMessage = null;
+    signUpErrorMessage = null;
     notifyListeners();
     try {
       final request = SignupRequest(username: username, password: password);
@@ -49,7 +50,7 @@ class AuthViewModel extends ChangeNotifier {
       signUpState = AuthState.success;
     } on Failure catch (e) {
       signUpState = AuthState.error;
-      errorMessage = e.message;
+      signUpErrorMessage = e.message;
     } finally {
       notifyListeners();
     }
@@ -60,19 +61,19 @@ class AuthViewModel extends ChangeNotifier {
     currentUser = null;
 
     loginState = AuthState.idle;
-    errorMessage = null;
+    loginErrorMessage = null;
     notifyListeners();
   }
 
   void resetLogin() {
     loginState = AuthState.idle;
-    errorMessage = null;
+    loginErrorMessage = null;
     notifyListeners();
   }
 
   void resetSignupState() {
     signUpState = AuthState.idle;
-    errorMessage = null;
+    signUpErrorMessage = null;
     notifyListeners();
   }
 }

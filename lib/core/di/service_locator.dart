@@ -12,7 +12,7 @@ import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository_impl.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
-import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
+import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 
 final getIt = GetIt.instance;
 

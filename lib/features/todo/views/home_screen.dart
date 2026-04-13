@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
-import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
+import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/widgets/add_task_sheet.dart';
 import 'package:to_do_app/features/todo/widgets/empty_widget.dart';
 import 'package:to_do_app/features/todo/widgets/task_card.dart';

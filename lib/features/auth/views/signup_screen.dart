@@ -57,7 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       context.goNamed(AppRoutes.login);
     }
     if (_vm.signUpState == AuthState.error) {
-      SnackBarUtils.showError(context, _vm.errorMessage!);
+      SnackBarUtils.showError(context, _vm.signUpErrorMessage!);
       _vm.resetSignupState();
     }
   }

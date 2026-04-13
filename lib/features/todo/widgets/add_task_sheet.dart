@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/features/auth/widgets/custom_textfield.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
-import 'package:to_do_app/features/todo/viewmodels/task_view_model.dart';
+import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'category_dialog.dart';
 import 'priority_dialog.dart';
 
@@ -57,7 +57,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     }
   }
 
-  void showCategoryDialod() async {
+  void showCategoryDialog() async {
     final result = await showDialog(
       context: context,
       builder: (_) => const CategoryDialog(),
@@ -132,7 +132,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
 
             CustomTextfield.task(
               controller: _descController,
-              hint: 'Descriptio(Optional)',
+              hint: 'Description(Optional)',
               obscureText: false,
             ),
 
@@ -151,7 +151,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 16.horizontalSpace,
 
                 GestureDetector(
-                  onTap: () => showCategoryDialod(),
+                  onTap: () => showCategoryDialog(),
                   child: _selectedLabel == null
                       ? Icon(
                           Icons.label_important_outline,

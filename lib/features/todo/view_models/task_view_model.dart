@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_app/features/auth/failures/failure.dart';
 import 'package:to_do_app/features/todo/models/create_todo_request.dart';
 import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
@@ -6,9 +7,9 @@ import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 enum TaskState { idle, loading, success, error }
 
 class TaskViewModel extends ChangeNotifier {
-  final TodoRepository _taskrepo;
+  final TodoRepository _taskRepo;
 
-  TaskViewModel(this._taskrepo);
+  TaskViewModel(this._taskRepo);
 
   TaskState state = TaskState.idle;
   List<TaskModel> tasks = [];
@@ -20,13 +21,16 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      tasks = await _taskrepo.getTodos();
+      tasks = await _taskRepo.getTodos();
       state = TaskState.success;
-      debugPrint('Tasks loaded: ${tasks.length}');
-    } catch (e) {
+    } on Failure catch (e) {
       state = TaskState.error;
-      errorMessage = 'Failed to load tasks. Please try again.';
-      //  debugPrint('getTodos error: $e');
+      errorMessage = e.message;
+      debugPrint('createTodo Failure: ${e.message}');
+    } on Exception catch (e, stackTrace) {
+      state = TaskState.error;
+      errorMessage = 'Failed to create task. Please try again.';
+      debugPrint('createTodo Exception: $e\n$stackTrace');
     } finally {
       notifyListeners();
     }
@@ -51,41 +55,51 @@ class TaskViewModel extends ChangeNotifier {
         category: category,
         priority: priority ?? 0,
       );
-      final newTask = await _taskrepo.createTodo(request.toJson());
+      final newTask = await _taskRepo.createTodo(request.toJson());
       final updatedTask = newTask.copyWith(
-        description: request.description!,
+        description: request.description ?? '',
         priority: request.priority,
         category: request.category,
         dateTime: request.dateTime,
       );
       tasks.insert(0, updatedTask);
-    } catch (e) {
+      debugPrint('Task create: ${updatedTask.title}');
+    } on Failure catch (e) {
+      state = TaskState.error;
+      errorMessage = e.message;
+      debugPrint('createTodo Failure: ${e.message}');
+    } on Exception catch (e, stackTrace) {
+      state = TaskState.error;
       errorMessage = 'Failed to create task. Please try again.';
+      debugPrint('createTodo Exception: $e\n$stackTrace');
     } finally {
       notifyListeners();
     }
   }
 
   Future<void> toggleComplete(TaskModel task) async {
-    const int kMaxRemoteTaskId = 200;
     final updated = task.copyWith(completed: !task.completed);
     final idx = tasks.indexOf(task);
     tasks[idx] = updated;
-    notifyListeners();
 
     try {
-      if (task.id <= kMaxRemoteTaskId) {
-        await _taskrepo.updateTodo(task.id, {'completed': !task.completed});
-      }
-    } catch (e) {
+      await _taskRepo.updateTodo(task.id, {'completed': !task.completed});
+    } on Failure catch (e) {
       tasks[idx] = task;
-      errorMessage = 'Failed to update task.';
+      state = TaskState.error;
+      errorMessage = e.message;
+      debugPrint('toggleComplete Failure: ${e.message}');
+    } on Exception catch (e, stackTrace) {
+      tasks[idx] = task;
+      state = TaskState.error;
+      errorMessage = 'Failed to update task. Please try again.';
+      debugPrint('toggleComplete Exception: $e\n$stackTrace');
+    } finally {
       notifyListeners();
     }
   }
 
   Future<void> updateTodo(TaskModel task) async {
-    const int kMaxRemoteTaskId = 200;
     state = TaskState.loading;
     notifyListeners();
 
@@ -94,13 +108,17 @@ class TaskViewModel extends ChangeNotifier {
       tasks[idx] = task;
     }
     try {
-      if (task.id <= kMaxRemoteTaskId) {
-        await _taskrepo.updateTodo(task.id, task.toJson());
-      }
-    } catch (e) {
-      debugPrint('Update failed: $e');
+      await _taskRepo.updateTodo(task.id, task.toJson());
+      debugPrint('Task updated: ${task.title}');
+    } on Failure catch (e) {
+      state = TaskState.error;
+      errorMessage = e.message;
+      debugPrint('updateTodo Failure: ${e.message}');
+    } on Exception catch (e, stackTrace) {
+      state = TaskState.error;
+      errorMessage = 'Failed to update task. Please try again.';
+      debugPrint('updateTodo Exception: $e\n$stackTrace');
     } finally {
-      state = TaskState.idle;
       notifyListeners();
     }
   }
@@ -113,10 +131,19 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _taskrepo.deleteTodo(task.id);
-    } catch (e) {
+      await _taskRepo.deleteTodo(task.id);
+      debugPrint('Task deleted: ${task.title}');
+    } on Failure catch (e) {
+      tasks[idx] = task;
+      state = TaskState.error;
+      errorMessage = e.message;
+      debugPrint('deleteTodo Failure: ${e.message}');
+    } on Exception catch (e, stackTrace) {
       tasks.insert(idx, removedTask);
+      state = TaskState.error;
       errorMessage = 'Failed to delete task. Please try again.';
+      debugPrint('deleteTodo Exception: $e\n$stackTrace');
+    } finally {
       notifyListeners();
     }
   }

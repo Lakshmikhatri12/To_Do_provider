@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
-import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
 
 class PriorityDialog extends StatefulWidget {

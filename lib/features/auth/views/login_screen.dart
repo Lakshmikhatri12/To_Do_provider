@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context.goNamed(AppRoutes.home);
     }
     if (_vm.loginState == AuthState.error) {
-      SnackBarUtils.showError(context, _vm.errorMessage!);
+      SnackBarUtils.showError(context, _vm.loginErrorMessage!);
       _vm.resetLogin();
     }
   }
