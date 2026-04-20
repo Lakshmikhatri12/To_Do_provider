@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
-import 'package:to_do_app/core/network/api_service.dart';
+import 'package:to_do_app/core/network/client/api_service.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository_impl.dart';
 import 'package:to_do_app/features/auth/services/auth_service.dart';
@@ -13,10 +13,12 @@ import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository_impl.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
-import 'package:to_do_app/useCases/create_todo_usecase.dart';
-import 'package:to_do_app/useCases/delete_todo_usecase.dart';
-import 'package:to_do_app/useCases/get_todo_usecase.dart';
-import 'package:to_do_app/useCases/update_todo_usecase.dart';
+
+
+import '../../features/todo/usecases/create_todo_usecase.dart';
+import '../../features/todo/usecases/delete_todo_usecase.dart';
+import '../../features/todo/usecases/get_todo_usecase.dart';
+import '../../features/todo/usecases/update_todo_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -58,28 +60,28 @@ void setupLocator() {
     () => SplashViewModel(getIt<TokenService>()),
   );
 
-  getIt.registerFactory<GetTodoUsecase>(
-    () => GetTodoUsecase(getIt<TodoRepository>()),
+  getIt.registerFactory<GetTodoUseCase>(
+    () => GetTodoUseCase(getIt<TodoRepository>()),
   );
 
-  getIt.registerFactory<CreateTodoUsecase>(
-    () => CreateTodoUsecase(getIt<TodoRepository>()),
+  getIt.registerFactory<CreateTodoUseCase>(
+    () => CreateTodoUseCase(getIt<TodoRepository>()),
   );
 
-  getIt.registerFactory<UpdateTodoUsecase>(
-    () => UpdateTodoUsecase(getIt<TodoRepository>()),
+  getIt.registerFactory<UpdateTodoUseCase>(
+    () => UpdateTodoUseCase(getIt<TodoRepository>()),
   );
 
-  getIt.registerFactory<DeleteTodoUsecase>(
-    () => DeleteTodoUsecase(getIt<TodoRepository>()),
+  getIt.registerFactory<DeleteTodoUseCase>(
+    () => DeleteTodoUseCase(getIt<TodoRepository>()),
   );
 
-  getIt.registerFactory<TaskViewModel>(
+  getIt.registerLazySingleton<TaskViewModel>(
     () => TaskViewModel(
-      getIt<GetTodoUsecase>(),
-      getIt<CreateTodoUsecase>(),
-      getIt<UpdateTodoUsecase>(),
-      getIt<DeleteTodoUsecase>(),
+      getIt<GetTodoUseCase>(),
+      getIt<CreateTodoUseCase>(),
+      getIt<UpdateTodoUseCase>(),
+      getIt<DeleteTodoUseCase>(),
     ),
   );
 

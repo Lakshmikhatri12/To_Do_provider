@@ -70,9 +70,9 @@ final router = GoRouter(
     GoRoute(
       path: AppRoutes.homePath,
       name: AppRoutes.home,
-      builder: (context, state) => ChangeNotifierProvider(
-        create: (_) => getIt<TaskViewModel>(),
-        builder: (context, child) => const HomeScreen(),
+      builder: (context, state) => ChangeNotifierProvider.value(
+        value: getIt<TaskViewModel>(),
+        child: const HomeScreen(),
       ),
     ),
     GoRoute(

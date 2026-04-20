@@ -1,5 +1,5 @@
-import 'package:to_do_app/core/constants/app_url.dart';
-import 'package:to_do_app/core/network/api_service.dart';
+import 'package:to_do_app/core/network/config/app_url.dart';
+import 'package:to_do_app/core/network/client/api_service.dart';
 
 class TodoService {
   final ApiService _apiService;

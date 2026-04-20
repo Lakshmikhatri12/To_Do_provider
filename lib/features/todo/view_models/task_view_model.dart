@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/models/create_todo_request.dart';
-import 'package:to_do_app/useCases/create_todo_usecase.dart';
-import 'package:to_do_app/useCases/delete_todo_usecase.dart';
-import 'package:to_do_app/useCases/get_todo_usecase.dart';
-import 'package:to_do_app/useCases/update_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/create_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/delete_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/get_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/update_todo_usecase.dart';
 
 enum TaskState { idle, loading, success, error }
 
 class TaskViewModel extends ChangeNotifier {
-  final GetTodoUsecase _getTodoUsecase;
-  final CreateTodoUsecase _createTodoUsecase;
-  final UpdateTodoUsecase _updateTodoUsecase;
-  final DeleteTodoUsecase _deleteTodoUsecase;
+  final GetTodoUseCase _getTodoUseCase;
+  final CreateTodoUseCase _createTodoUseCase;
+  final UpdateTodoUseCase _updateTodoUseCase;
+  final DeleteTodoUseCase _deleteTodoUseCase;
 
   TaskViewModel(
-    this._getTodoUsecase,
-    this._createTodoUsecase,
-    this._updateTodoUsecase,
-    this._deleteTodoUsecase,
+    this._getTodoUseCase,
+    this._createTodoUseCase,
+    this._updateTodoUseCase,
+    this._deleteTodoUseCase,
   );
 
   TaskState state = TaskState.idle;
@@ -26,11 +26,14 @@ class TaskViewModel extends ChangeNotifier {
   String? errorMessage;
 
   Future<void> getTodos() async {
-    state = TaskState.loading;
+    // Only show full loading state on initial load, not on pull-to-refresh
+    if (tasks.isEmpty) {
+      state = TaskState.loading;
+    }
     errorMessage = null;
     notifyListeners();
 
-    final result = await _getTodoUsecase();
+    final result = await _getTodoUseCase();
     result.fold(
       (failure) {
         state = TaskState.error;
@@ -52,6 +55,10 @@ class TaskViewModel extends ChangeNotifier {
     DateTime? dateTime,
   }) async {
     if (title.trim().isEmpty) return;
+
+    state = TaskState.loading;
+    notifyListeners();
+
     final request = CreateTodoRequest(
       title: title.trim(),
       description: description,
@@ -61,7 +68,7 @@ class TaskViewModel extends ChangeNotifier {
       category: category,
       dateTime: dateTime,
     );
-    final result = await _createTodoUsecase(request);
+    final result = await _createTodoUseCase(request);
     result.fold(
       (failure) {
         state = TaskState.error;
@@ -69,6 +76,7 @@ class TaskViewModel extends ChangeNotifier {
         debugPrint('createTodo Failure: ${failure.message}');
       },
       (newTask) {
+        state = TaskState.success;
         tasks = [newTask, ...tasks];
         debugPrint('Task created: ${newTask.title}');
       },
@@ -81,7 +89,7 @@ class TaskViewModel extends ChangeNotifier {
     final idx = tasks.indexOf(task);
     tasks[idx] = updated;
 
-    final result = await _updateTodoUsecase(task.id, updated);
+    final result = await _updateTodoUseCase(task.id, updated);
     result.fold(
       (failure) {
         tasks[idx] = task;
@@ -97,23 +105,31 @@ class TaskViewModel extends ChangeNotifier {
   }
 
   Future<void> updateTodo(TaskEntity task) async {
+    final idx = tasks.indexWhere((t) => t.id == task.id);
+    if (idx == -1) return;
+
+    // Save the old task for rollback on failure
+    final oldTask = tasks[idx];
+
+    // Optimistically update the UI + show loading
     state = TaskState.loading;
+    tasks[idx] = task;
+    tasks = List.from(tasks);
     notifyListeners();
 
-    final idx = tasks.indexWhere((t) => t.id == task.id);
-    if (idx != -1) {
-      tasks[idx] = task;
-      tasks = List.from(tasks);
-      notifyListeners();
-    }
-    final result = await _updateTodoUsecase(task.id, task);
+    final result = await _updateTodoUseCase(task.id, task);
 
     result.fold(
       (failure) {
+        // Rollback to old task on failure
+        tasks[idx] = oldTask;
         tasks = List.from(tasks);
+        state = TaskState.error;
         errorMessage = failure.message;
+        debugPrint('updateTodo Failure: ${failure.message}');
       },
       (_) {
+        state = TaskState.success;
         debugPrint('Task Updated: ${task.title}');
       },
     );
@@ -127,7 +143,7 @@ class TaskViewModel extends ChangeNotifier {
     tasks.removeAt(idx);
     notifyListeners();
 
-    final result = await _deleteTodoUsecase(task.id);
+    final result = await _deleteTodoUseCase(task.id);
     result.fold(
       (failure) {
         tasks.insert(idx, removedTask);

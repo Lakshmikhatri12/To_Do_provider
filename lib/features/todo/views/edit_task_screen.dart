@@ -9,6 +9,8 @@ import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 
+import '../widgets/custom_edit_textfield.dart';
+
 class EditTaskScreen extends StatefulWidget {
   final TaskEntity task;
   const EditTaskScreen({super.key, required this.task});
@@ -42,7 +44,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       SnackBarUtils.showError(context, 'Please enter task title');
       return;
     }
-
+    FocusScope.of(context).unfocus();
     final updatedTask = widget.task.copyWith(
       title: _titleController.text.trim(),
       description: _descController.text.trim(),
@@ -50,7 +52,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     );
 
     await context.read<TaskViewModel>().updateTodo(updatedTask);
-
     if (!mounted) return;
     Navigator.pop(context);
   }
@@ -87,24 +88,20 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           children: [
             _buildLabel('Title'),
             8.verticalSpace,
-            _buildTextField(controller: _titleController, hint: 'Task title'),
+            CustomEditTextField(controller: _titleController, hint: 'Task title'),
             20.verticalSpace,
-
             _buildLabel('Description'),
             8.verticalSpace,
-
-            _buildTextField(
+            CustomEditTextField(
               controller: _descController,
               hint: 'Description (optional)',
               maxLines: 3,
             ),
             20.verticalSpace,
-
             _buildLabel('Date & Time'),
             8.verticalSpace,
-
-            _buildTextField(
-              ontap: () => pickDate(),
+            CustomEditTextField(
+              onTap: () => pickDate(),
               readOnly: true,
               icon: Icons.calendar_month_outlined,
               hint: _selectedDateTime != null
@@ -140,36 +137,5 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     );
   }
 
-  Widget _buildTextField({
-    bool readOnly = false,
-    VoidCallback? ontap,
-    TextEditingController? controller,
-    required String hint,
-    int maxLines = 1,
-    IconData? icon,
-  }) {
-    return TextField(
-      onTap: ontap,
-      readOnly: readOnly,
-      controller: controller,
-      maxLines: maxLines,
-      style: TextStyle(color: Colors.white, fontSize: 14.sp),
-      decoration: InputDecoration(
-        prefixIcon: icon != null
-            ? Icon(icon, color: Colors.white, size: 18.r)
-            : null,
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.white38, fontSize: 14.sp),
-        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: const BorderSide(color: Colors.white12, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
-    );
-  }
+
 }

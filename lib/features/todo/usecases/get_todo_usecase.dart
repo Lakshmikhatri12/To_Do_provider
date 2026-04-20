@@ -1,10 +1,11 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:to_do_app/features/auth/failures/failure.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 
-class DeleteTodoUsecase {
+class GetTodoUseCase {
   final TodoRepository repository;
-  DeleteTodoUsecase(this.repository);
+  GetTodoUseCase(this.repository);
 
-  Future<Either<Failure, void>> call(int id) => repository.deleteTodo(id);
+  Future<Either<Failure, List<TaskEntity>>> call() => repository.getTodos();
 }

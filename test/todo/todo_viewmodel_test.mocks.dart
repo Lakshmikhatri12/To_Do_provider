@@ -3,13 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
+import 'package:fpdart/fpdart.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:to_do_app/features/todo/models/task_model/task_model.dart'
-    as _i2;
+import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:to_do_app/features/auth/failures/failure.dart' as _i5;
+import 'package:to_do_app/features/todo/entities/task_entity.dart' as _i6;
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart'
-    as _i3;
+    as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -26,53 +28,87 @@ import 'package:to_do_app/features/todo/repositories/todo_repository.dart'
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeTaskModel_0 extends _i1.SmartFake implements _i2.TaskModel {
-  _FakeTaskModel_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [TodoRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTodoRepository extends _i1.Mock implements _i3.TodoRepository {
+class MockTodoRepository extends _i1.Mock implements _i2.TodoRepository {
   MockTodoRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<List<_i2.TaskModel>> getTodos() =>
+  _i3.Future<_i4.Either<_i5.Failure, List<_i6.TaskEntity>>> getTodos() =>
       (super.noSuchMethod(
             Invocation.method(#getTodos, []),
-            returnValue: _i4.Future<List<_i2.TaskModel>>.value(
-              <_i2.TaskModel>[],
-            ),
+            returnValue:
+                _i3.Future<_i4.Either<_i5.Failure, List<_i6.TaskEntity>>>.value(
+                  _i7.dummyValue<_i4.Either<_i5.Failure, List<_i6.TaskEntity>>>(
+                    this,
+                    Invocation.method(#getTodos, []),
+                  ),
+                ),
           )
-          as _i4.Future<List<_i2.TaskModel>>);
+          as _i3.Future<_i4.Either<_i5.Failure, List<_i6.TaskEntity>>>);
 
   @override
-  _i4.Future<_i2.TaskModel> createTodo(Map<String, dynamic>? data) =>
+  _i3.Future<_i4.Either<_i5.Failure, _i6.TaskEntity>> createTodo({
+    required String? title,
+    String? description,
+    String? category,
+    int? priority,
+    DateTime? dateTime,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#createTodo, [data]),
-            returnValue: _i4.Future<_i2.TaskModel>.value(
-              _FakeTaskModel_0(this, Invocation.method(#createTodo, [data])),
-            ),
+            Invocation.method(#createTodo, [], {
+              #title: title,
+              #description: description,
+              #category: category,
+              #priority: priority,
+              #dateTime: dateTime,
+            }),
+            returnValue:
+                _i3.Future<_i4.Either<_i5.Failure, _i6.TaskEntity>>.value(
+                  _i7.dummyValue<_i4.Either<_i5.Failure, _i6.TaskEntity>>(
+                    this,
+                    Invocation.method(#createTodo, [], {
+                      #title: title,
+                      #description: description,
+                      #category: category,
+                      #priority: priority,
+                      #dateTime: dateTime,
+                    }),
+                  ),
+                ),
           )
-          as _i4.Future<_i2.TaskModel>);
+          as _i3.Future<_i4.Either<_i5.Failure, _i6.TaskEntity>>);
 
   @override
-  _i4.Future<_i2.TaskModel?> updateTodo(int? id, Map<String, dynamic>? data) =>
+  _i3.Future<_i4.Either<_i5.Failure, _i6.TaskEntity?>> updateTodo(
+    int? id,
+    _i6.TaskEntity? data,
+  ) =>
       (super.noSuchMethod(
             Invocation.method(#updateTodo, [id, data]),
-            returnValue: _i4.Future<_i2.TaskModel?>.value(),
+            returnValue:
+                _i3.Future<_i4.Either<_i5.Failure, _i6.TaskEntity?>>.value(
+                  _i7.dummyValue<_i4.Either<_i5.Failure, _i6.TaskEntity?>>(
+                    this,
+                    Invocation.method(#updateTodo, [id, data]),
+                  ),
+                ),
           )
-          as _i4.Future<_i2.TaskModel?>);
+          as _i3.Future<_i4.Either<_i5.Failure, _i6.TaskEntity?>>);
 
   @override
-  _i4.Future<void> deleteTodo(int? id) =>
+  _i3.Future<_i4.Either<_i5.Failure, void>> deleteTodo(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteTodo, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<_i4.Either<_i5.Failure, void>>.value(
+              _i7.dummyValue<_i4.Either<_i5.Failure, void>>(
+                this,
+                Invocation.method(#deleteTodo, [id]),
+              ),
+            ),
           )
-          as _i4.Future<void>);
+          as _i3.Future<_i4.Either<_i5.Failure, void>>);
 }

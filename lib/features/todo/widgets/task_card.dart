@@ -11,8 +11,9 @@ import 'package:to_do_app/features/todo/widgets/category_helper.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskEntity task;
+  final VoidCallback onTapEdit;
 
-  const TaskCard({super.key, required this.task});
+  const TaskCard({super.key, required this.task, required this.onTapEdit});
 
   String _formatDate(DateTime dt) {
     return DateFormat('d/M/yyyy - h:mm a').format(dt);
@@ -34,8 +35,9 @@ class TaskCard extends StatelessWidget {
           ),
           child: Icon(Icons.delete, color: Colors.white, size: 28.r),
         ),
-        onDismissed: (_) {
+        confirmDismiss: (_) async {
           context.read<TaskViewModel>().deleteTodo(task);
+          return false;
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -160,9 +162,7 @@ class TaskCard extends StatelessWidget {
                       ),
                     8.horizontalSpace,
                     GestureDetector(
-                      onTap: () {
-                        context.pushNamed(AppRoutes.edit, extra: task);
-                      },
+                      onTap: onTapEdit,
                       child: Icon(Icons.edit, color: Colors.white, size: 18.r),
                     ),
                   ],

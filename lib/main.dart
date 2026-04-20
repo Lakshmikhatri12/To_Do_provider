@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_app/core/theme/custom_theme/app_theme.dart';
+import 'package:to_do_app/core/theme/app_theme.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'core/di/service_locator.dart';
-import 'core/router/router.dart';
+import 'core/router/app_router.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
