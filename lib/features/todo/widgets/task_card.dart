@@ -5,12 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
-import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/widgets/category_helper.dart';
 
 class TaskCard extends StatelessWidget {
-  final TaskModel task;
+  final TaskEntity task;
 
   const TaskCard({super.key, required this.task});
 

@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_app/features/auth/failures/failure.dart';
-import 'package:to_do_app/features/todo/models/create_todo_request.dart';
-import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
-import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
+import 'package:to_do_app/features/todo/usecases/create_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/delete_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/get_todo_usecase.dart';
+import 'package:to_do_app/features/todo/usecases/update_todo_usecase.dart';
 
 enum TaskState { idle, loading, success, error }
 
 class TaskViewModel extends ChangeNotifier {
-  final TodoRepository _taskRepo;
+  final GetTodoUsecase _getTodoUsecase;
+  final CreateTodoUsecase _createTodoUsecase;
+  final UpdateTodoUsecase _updateTodoUsecase;
+  final DeleteTodoUsecase _deleteTodoUsecase;
 
-  TaskViewModel(this._taskRepo);
+  TaskViewModel(
+    this._getTodoUsecase,
+    this._createTodoUsecase,
+    this._updateTodoUsecase,
+    this._deleteTodoUsecase,
+  );
 
   TaskState state = TaskState.idle;
-  List<TaskModel> tasks = [];
+  List<TaskEntity> tasks = [];
   String? errorMessage;
 
   Future<void> getTodos() async {
@@ -21,7 +31,7 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      tasks = await _taskRepo.getTodos();
+      tasks = await _getTodoUsecase();
       state = TaskState.success;
     } on Failure catch (e) {
       state = TaskState.error;
@@ -46,24 +56,17 @@ class TaskViewModel extends ChangeNotifier {
     if (title.trim().isEmpty) return;
 
     try {
-      final request = CreateTodoRequest(
-        title: title.trim(),
+      final newTask = await _createTodoUsecase(
+        title: title,
         description: description,
-        completed: false,
-        userId: 1,
-        dateTime: dateTime,
+        priority: priority,
         category: category,
-        priority: priority ?? 0,
+        dateTime: dateTime,
       );
-      final newTask = await _taskRepo.createTodo(request.toJson());
-      final updatedTask = newTask.copyWith(
-        description: request.description ?? '',
-        priority: request.priority,
-        category: request.category,
-        dateTime: request.dateTime,
-      );
-      tasks.insert(0, updatedTask);
-      debugPrint('Task create: ${updatedTask.title}');
+
+      tasks.insert(0, newTask);
+
+      debugPrint('Task create: ${newTask.title}');
     } on Failure catch (e) {
       state = TaskState.error;
       errorMessage = e.message;
@@ -77,13 +80,13 @@ class TaskViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleComplete(TaskModel task) async {
+  Future<void> toggleComplete(TaskEntity task) async {
     final updated = task.copyWith(completed: !task.completed);
     final idx = tasks.indexOf(task);
     tasks[idx] = updated;
 
     try {
-      await _taskRepo.updateTodo(task.id, {'completed': !task.completed});
+      await _updateTodoUsecase(task.id, updated);
     } on Failure catch (e) {
       tasks[idx] = task;
       state = TaskState.error;
@@ -99,16 +102,19 @@ class TaskViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateTodo(TaskModel task) async {
+  Future<void> updateTodo(TaskEntity task) async {
     state = TaskState.loading;
     notifyListeners();
 
     final idx = tasks.indexWhere((t) => t.id == task.id);
     if (idx != -1) {
       tasks[idx] = task;
+      tasks = List.from(tasks);
+      notifyListeners();
     }
     try {
-      await _taskRepo.updateTodo(task.id, task.toJson());
+      await _updateTodoUsecase(task.id, task);
+      state = TaskState.success;
       debugPrint('Task updated: ${task.title}');
     } on Failure catch (e) {
       state = TaskState.error;
@@ -123,7 +129,7 @@ class TaskViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteTodo(TaskModel task) async {
+  Future<void> deleteTodo(TaskEntity task) async {
     final idx = tasks.indexWhere((t) => t.id == task.id);
     if (idx == -1) return;
     final removedTask = tasks[idx];
@@ -131,7 +137,7 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _taskRepo.deleteTodo(task.id);
+      await _deleteTodoUsecase(task.id);
       debugPrint('Task deleted: ${task.title}');
     } on Failure catch (e) {
       tasks[idx] = task;

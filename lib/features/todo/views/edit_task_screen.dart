@@ -5,12 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
-import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 
 class EditTaskScreen extends StatefulWidget {
-  final TaskModel task;
+  final TaskEntity task;
   const EditTaskScreen({super.key, required this.task});
 
   @override

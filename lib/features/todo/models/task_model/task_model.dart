@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
 part 'task_model.freezed.dart';
 part 'task_model.g.dart';
 
@@ -16,4 +17,16 @@ abstract class TaskModel with _$TaskModel {
 
   factory TaskModel.fromJson(Map<String, dynamic> json) =>
       _$TaskModelFromJson(json);
+}
+
+extension TaskModelMapper on TaskModel {
+  TaskEntity toEntity() => TaskEntity(
+    id: id,
+    title: title,
+    description: description,
+    completed: completed,
+    priority: priority,
+    dateTime: dateTime,
+    category: category,
+  );
 }

@@ -72,7 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: vm.tasks.length,
                     padding: EdgeInsets.only(bottom: 100.h, top: 4.h),
                     itemBuilder: (context, index) {
-                      return TaskCard(task: vm.tasks[index]);
+                      return TaskCard(
+                        key: ValueKey(vm.tasks[index].id),
+                        task: vm.tasks[index],
+                      );
                     },
                   ),
                 ),
