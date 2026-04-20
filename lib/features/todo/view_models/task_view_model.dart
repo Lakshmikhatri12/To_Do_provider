@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/features/auth/failures/failure.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
-import 'package:to_do_app/features/todo/usecases/create_todo_usecase.dart';
-import 'package:to_do_app/features/todo/usecases/delete_todo_usecase.dart';
-import 'package:to_do_app/features/todo/usecases/get_todo_usecase.dart';
-import 'package:to_do_app/features/todo/usecases/update_todo_usecase.dart';
+import 'package:to_do_app/features/todo/models/create_todo_request.dart';
+import 'package:to_do_app/useCases/create_todo_usecase.dart';
+import 'package:to_do_app/useCases/delete_todo_usecase.dart';
+import 'package:to_do_app/useCases/get_todo_usecase.dart';
+import 'package:to_do_app/useCases/update_todo_usecase.dart';
 
 enum TaskState { idle, loading, success, error }
 
@@ -30,20 +30,18 @@ class TaskViewModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    try {
-      tasks = await _getTodoUsecase();
-      state = TaskState.success;
-    } on Failure catch (e) {
-      state = TaskState.error;
-      errorMessage = e.message;
-      debugPrint('createTodo Failure: ${e.message}');
-    } on Exception catch (e, stackTrace) {
-      state = TaskState.error;
-      errorMessage = 'Failed to create task. Please try again.';
-      debugPrint('createTodo Exception: $e\n$stackTrace');
-    } finally {
-      notifyListeners();
-    }
+    final result = await _getTodoUsecase();
+    result.fold(
+      (failure) {
+        state = TaskState.error;
+        errorMessage = failure.message;
+      },
+      (data) {
+        state = TaskState.success;
+        tasks = data;
+      },
+    );
+    notifyListeners();
   }
 
   Future<void> createTodo(
@@ -54,30 +52,28 @@ class TaskViewModel extends ChangeNotifier {
     DateTime? dateTime,
   }) async {
     if (title.trim().isEmpty) return;
-
-    try {
-      final newTask = await _createTodoUsecase(
-        title: title,
-        description: description,
-        priority: priority,
-        category: category,
-        dateTime: dateTime,
-      );
-
-      tasks.insert(0, newTask);
-
-      debugPrint('Task create: ${newTask.title}');
-    } on Failure catch (e) {
-      state = TaskState.error;
-      errorMessage = e.message;
-      debugPrint('createTodo Failure: ${e.message}');
-    } on Exception catch (e, stackTrace) {
-      state = TaskState.error;
-      errorMessage = 'Failed to create task. Please try again.';
-      debugPrint('createTodo Exception: $e\n$stackTrace');
-    } finally {
-      notifyListeners();
-    }
+    final request = CreateTodoRequest(
+      title: title.trim(),
+      description: description,
+      completed: false,
+      userId: 1,
+      priority: priority ?? 0,
+      category: category,
+      dateTime: dateTime,
+    );
+    final result = await _createTodoUsecase(request);
+    result.fold(
+      (failure) {
+        state = TaskState.error;
+        errorMessage = failure.message;
+        debugPrint('createTodo Failure: ${failure.message}');
+      },
+      (newTask) {
+        tasks = [newTask, ...tasks];
+        debugPrint('Task created: ${newTask.title}');
+      },
+    );
+    notifyListeners();
   }
 
   Future<void> toggleComplete(TaskEntity task) async {
@@ -85,21 +81,19 @@ class TaskViewModel extends ChangeNotifier {
     final idx = tasks.indexOf(task);
     tasks[idx] = updated;
 
-    try {
-      await _updateTodoUsecase(task.id, updated);
-    } on Failure catch (e) {
-      tasks[idx] = task;
-      state = TaskState.error;
-      errorMessage = e.message;
-      debugPrint('toggleComplete Failure: ${e.message}');
-    } on Exception catch (e, stackTrace) {
-      tasks[idx] = task;
-      state = TaskState.error;
-      errorMessage = 'Failed to update task. Please try again.';
-      debugPrint('toggleComplete Exception: $e\n$stackTrace');
-    } finally {
-      notifyListeners();
-    }
+    final result = await _updateTodoUsecase(task.id, updated);
+    result.fold(
+      (failure) {
+        tasks[idx] = task;
+        state = TaskState.error;
+        errorMessage = failure.message;
+        debugPrint('toggleComplete Failure: ${failure.message}');
+      },
+      (updated) {
+        debugPrint('toggele completed');
+      },
+    );
+    notifyListeners();
   }
 
   Future<void> updateTodo(TaskEntity task) async {
@@ -112,21 +106,18 @@ class TaskViewModel extends ChangeNotifier {
       tasks = List.from(tasks);
       notifyListeners();
     }
-    try {
-      await _updateTodoUsecase(task.id, task);
-      state = TaskState.success;
-      debugPrint('Task updated: ${task.title}');
-    } on Failure catch (e) {
-      state = TaskState.error;
-      errorMessage = e.message;
-      debugPrint('updateTodo Failure: ${e.message}');
-    } on Exception catch (e, stackTrace) {
-      state = TaskState.error;
-      errorMessage = 'Failed to update task. Please try again.';
-      debugPrint('updateTodo Exception: $e\n$stackTrace');
-    } finally {
-      notifyListeners();
-    }
+    final result = await _updateTodoUsecase(task.id, task);
+
+    result.fold(
+      (failure) {
+        tasks = List.from(tasks);
+        errorMessage = failure.message;
+      },
+      (_) {
+        debugPrint('Task Updated: ${task.title}');
+      },
+    );
+    notifyListeners();
   }
 
   Future<void> deleteTodo(TaskEntity task) async {
@@ -136,22 +127,17 @@ class TaskViewModel extends ChangeNotifier {
     tasks.removeAt(idx);
     notifyListeners();
 
-    try {
-      await _deleteTodoUsecase(task.id);
-      debugPrint('Task deleted: ${task.title}');
-    } on Failure catch (e) {
-      tasks[idx] = task;
-      state = TaskState.error;
-      errorMessage = e.message;
-      debugPrint('deleteTodo Failure: ${e.message}');
-    } on Exception catch (e, stackTrace) {
-      tasks.insert(idx, removedTask);
-      state = TaskState.error;
-      errorMessage = 'Failed to delete task. Please try again.';
-      debugPrint('deleteTodo Exception: $e\n$stackTrace');
-    } finally {
-      notifyListeners();
-    }
+    final result = await _deleteTodoUsecase(task.id);
+    result.fold(
+      (failure) {
+        tasks.insert(idx, removedTask);
+        errorMessage = failure.message;
+      },
+      (_) {
+        debugPrint("Task deleted");
+      },
+    );
+    notifyListeners();
   }
 
   void resetState() {

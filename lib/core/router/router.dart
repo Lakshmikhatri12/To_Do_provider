@@ -10,7 +10,7 @@ import 'package:to_do_app/features/onboarding/views/get_start_screen.dart';
 import 'package:to_do_app/features/onboarding/views/onboarding_screens.dart';
 import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
 import 'package:to_do_app/features/splash/views/splash_screen.dart';
-import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/views/edit_task_screen.dart';
 import 'package:to_do_app/features/todo/views/home_screen.dart';
@@ -79,7 +79,7 @@ final router = GoRouter(
       path: AppRoutes.editPath,
       name: AppRoutes.edit,
       builder: (context, state) {
-        final task = state.extra as TaskModel;
+        final task = state.extra as TaskEntity;
         return ChangeNotifierProvider.value(
           value: getIt<TaskViewModel>(),
           child: EditTaskScreen(task: task),

@@ -13,6 +13,10 @@ import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository_impl.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
+import 'package:to_do_app/useCases/create_todo_usecase.dart';
+import 'package:to_do_app/useCases/delete_todo_usecase.dart';
+import 'package:to_do_app/useCases/get_todo_usecase.dart';
+import 'package:to_do_app/useCases/update_todo_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -54,8 +58,29 @@ void setupLocator() {
     () => SplashViewModel(getIt<TokenService>()),
   );
 
+  getIt.registerFactory<GetTodoUsecase>(
+    () => GetTodoUsecase(getIt<TodoRepository>()),
+  );
+
+  getIt.registerFactory<CreateTodoUsecase>(
+    () => CreateTodoUsecase(getIt<TodoRepository>()),
+  );
+
+  getIt.registerFactory<UpdateTodoUsecase>(
+    () => UpdateTodoUsecase(getIt<TodoRepository>()),
+  );
+
+  getIt.registerFactory<DeleteTodoUsecase>(
+    () => DeleteTodoUsecase(getIt<TodoRepository>()),
+  );
+
   getIt.registerFactory<TaskViewModel>(
-    () => TaskViewModel(getIt<TodoRepository>()),
+    () => TaskViewModel(
+      getIt<GetTodoUsecase>(),
+      getIt<CreateTodoUsecase>(),
+      getIt<UpdateTodoUsecase>(),
+      getIt<DeleteTodoUsecase>(),
+    ),
   );
 
   getIt.registerFactory<OnboardingViewModel>(() => OnboardingViewModel());
