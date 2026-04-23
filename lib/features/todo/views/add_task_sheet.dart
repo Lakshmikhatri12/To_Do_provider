@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/features/auth/widgets/custom_textfield.dart';
+import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
-import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import '../widgets/category_dialog.dart';
 import '../widgets/priority_dialog.dart';
 
@@ -39,7 +39,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     final text = _titleController.text.trim();
     if (text.isEmpty) return;
 
-    context.read<TaskViewModel>().createTodo(
+    context.read<TodoCubit>().createTodo(
       text,
       description: _descController.text.trim(),
       category: _selectedLabel,
@@ -182,12 +182,16 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     return GestureDetector(
       onTap: _showCategoryDialog,
       child: _selectedLabel == null
-          ? Icon(Icons.label_important_outline, color: Colors.white, size: 18.sp)
+          ? Icon(
+              Icons.label_important_outline,
+              color: Colors.white,
+              size: 18.sp,
+            )
           : _buildChip(
-        label: _selectedLabel!,
-        icon: _selectedIcon!,
-        color: _selectedColor!,
-      ),
+              label: _selectedLabel!,
+              icon: _selectedIcon!,
+              color: _selectedColor!,
+            ),
     );
   }
 
@@ -197,10 +201,10 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
       child: _selectedPriority == null
           ? Icon(Icons.flag_outlined, color: Colors.white, size: 18.sp)
           : _buildChip(
-        label: 'P$_selectedPriority',
-        icon: Icons.flag_outlined,
-        color: const Color(0xFF8875FF),
-      ),
+              label: 'P$_selectedPriority',
+              icon: Icons.flag_outlined,
+              color: const Color(0xFF8875FF),
+            ),
     );
   }
 
@@ -221,7 +225,10 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
         children: [
           Icon(icon, color: color, size: 16.sp),
           4.horizontalSpace,
-          Text(label, style: TextStyle(color: color, fontSize: 12.sp)),
+          Text(
+            label,
+            style: TextStyle(color: color, fontSize: 12.sp),
+          ),
         ],
       ),
     );

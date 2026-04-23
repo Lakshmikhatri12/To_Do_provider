@@ -1,3 +1,4 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/di/service_locator.dart';
@@ -11,6 +12,7 @@ import 'package:to_do_app/features/onboarding/views/onboarding_screens.dart';
 import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
 import 'package:to_do_app/features/splash/views/splash_screen.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
+import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/views/edit_task_screen.dart';
 import 'package:to_do_app/features/todo/views/home_screen.dart';
@@ -67,21 +69,21 @@ final router = GoRouter(
       name: AppRoutes.signup,
       builder: (_, __) => const SignUpScreen(),
     ),
+
     GoRoute(
       path: AppRoutes.homePath,
       name: AppRoutes.home,
-      builder: (context, state) => ChangeNotifierProvider.value(
-        value: getIt<TaskViewModel>(),
-        child: const HomeScreen(),
-      ),
+      builder: (context, state) =>
+          BlocProvider(create: (_) => getIt<TodoCubit>(), child: HomeScreen()),
     ),
+
     GoRoute(
       path: AppRoutes.editPath,
       name: AppRoutes.edit,
       builder: (context, state) {
         final task = state.extra as TaskEntity;
-        return ChangeNotifierProvider.value(
-          value: getIt<TaskViewModel>(),
+        return BlocProvider.value(
+          value: getIt<TodoCubit>(),
           child: EditTaskScreen(task: task),
         );
       },

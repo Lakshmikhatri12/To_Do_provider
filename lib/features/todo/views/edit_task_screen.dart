@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
+import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
+import 'package:to_do_app/features/todo/cubit/todo_state.dart';
 import 'package:to_do_app/features/todo/services/date_picker_service.dart';
-import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 
 import '../widgets/custom_edit_textfield.dart';
 
@@ -51,7 +52,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       dateTime: _selectedDateTime,
     );
 
-    await context.read<TaskViewModel>().updateTodo(updatedTask);
+    await context.read<TodoCubit>().updateTodo(updatedTask);
     if (!mounted) return;
     Navigator.pop(context);
   }
@@ -88,7 +89,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           children: [
             _buildLabel('Title'),
             8.verticalSpace,
-            CustomEditTextField(controller: _titleController, hint: 'Task title'),
+            CustomEditTextField(
+              controller: _titleController,
+              hint: 'Task title',
+            ),
             20.verticalSpace,
             _buildLabel('Description'),
             8.verticalSpace,
@@ -109,12 +113,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   : 'Select Date & Time',
             ),
             40.verticalSpace,
-
-            Consumer<TaskViewModel>(
-              builder: (context, vm, _) {
+            BlocBuilder<TodoCubit, TodoState>(
+              builder: (context, state) {
                 return CustomButton(
                   text: "Update Task",
-                  loading: vm.state == TaskState.loading,
+                  loading: state is TodoUpdating,
                   ontap: _onUpdate,
                 );
               },
@@ -136,6 +139,4 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       ),
     );
   }
-
-
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:to_do_app/core/local/hive_service.dart';
 import 'package:to_do_app/core/network/client/api_service.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository_impl.dart';
@@ -9,11 +10,11 @@ import 'package:to_do_app/features/auth/services/token_service.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'package:to_do_app/features/onboarding/view_models/onboarding_view_model.dart';
 import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
+import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository_impl.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
-
 
 import '../../features/todo/usecases/create_todo_usecase.dart';
 import '../../features/todo/usecases/delete_todo_usecase.dart';
@@ -32,9 +33,12 @@ void setupLocator() {
   getIt.registerLazySingleton<TokenService>(
     () => TokenService(getIt<FlutterSecureStorage>()),
   );
+
   getIt.registerLazySingleton<ApiService>(
     () => ApiService(getIt<Dio>(), getIt<FlutterSecureStorage>()),
   );
+
+  getIt.registerLazySingleton<HiveService>(() => HiveService());
 
   getIt.registerLazySingleton<AuthService>(
     () => AuthService(getIt<ApiService>()),
@@ -49,7 +53,7 @@ void setupLocator() {
   );
 
   getIt.registerLazySingleton<TodoRepository>(
-    () => TodoRepositoryImpl(getIt<TodoService>()),
+    () => TodoRepositoryImpl(getIt<TodoService>(), getIt<HiveService>()),
   );
 
   getIt.registerFactory<AuthViewModel>(
@@ -76,8 +80,8 @@ void setupLocator() {
     () => DeleteTodoUseCase(getIt<TodoRepository>()),
   );
 
-  getIt.registerLazySingleton<TaskViewModel>(
-    () => TaskViewModel(
+  getIt.registerLazySingleton<TodoCubit>(
+    () => TodoCubit(
       getIt<GetTodoUseCase>(),
       getIt<CreateTodoUseCase>(),
       getIt<UpdateTodoUseCase>(),
