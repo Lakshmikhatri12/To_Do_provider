@@ -1,10 +1,22 @@
+import 'package:hive_ce/hive.dart';
+
+part 'task_entity.g.dart';
+
+@HiveType(typeId: 0)
 class TaskEntity {
+  @HiveField(0)
   final int id;
+  @HiveField(1)
   final String title;
+  @HiveField(2)
   final String description;
+  @HiveField(3)
   final bool completed;
+  @HiveField(4)
   final int priority;
+  @HiveField(5)
   final String? category;
+  @HiveField(6)
   final DateTime? dateTime;
 
   TaskEntity({

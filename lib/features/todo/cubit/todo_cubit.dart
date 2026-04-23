@@ -1,50 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/models/create_todo_request.dart';
+import 'package:to_do_app/features/todo/cubit/todo_state.dart';
 import 'package:to_do_app/features/todo/usecases/create_todo_usecase.dart';
 import 'package:to_do_app/features/todo/usecases/delete_todo_usecase.dart';
 import 'package:to_do_app/features/todo/usecases/get_todo_usecase.dart';
 import 'package:to_do_app/features/todo/usecases/update_todo_usecase.dart';
 
-enum TaskState { idle, loading, success, error }
-
-class TaskViewModel extends ChangeNotifier {
+class TodoCubit extends Cubit<TodoState> {
   final GetTodoUseCase _getTodoUseCase;
   final CreateTodoUseCase _createTodoUseCase;
   final UpdateTodoUseCase _updateTodoUseCase;
   final DeleteTodoUseCase _deleteTodoUseCase;
 
-  TaskViewModel(
+  TodoCubit(
     this._getTodoUseCase,
     this._createTodoUseCase,
     this._updateTodoUseCase,
     this._deleteTodoUseCase,
-  );
+  ) : super(InitTodoState());
 
-  TaskState state = TaskState.idle;
   List<TaskEntity> tasks = [];
-  String? errorMessage;
 
   Future<void> getTodos() async {
-    // Only show full loading state on initial load, not on pull-to-refresh
-    if (tasks.isEmpty) {
-      state = TaskState.loading;
-    }
-    errorMessage = null;
-    notifyListeners();
-
+    emit(LoadingTodoState());
     final result = await _getTodoUseCase();
     result.fold(
       (failure) {
-        state = TaskState.error;
-        errorMessage = failure.message;
+        emit(ErrorTodoState(failure.message));
       },
       (data) {
-        state = TaskState.success;
+        emit(ResponseTodoState(data));
         tasks = data;
       },
     );
-    notifyListeners();
   }
 
   Future<void> createTodo(
@@ -56,8 +46,7 @@ class TaskViewModel extends ChangeNotifier {
   }) async {
     if (title.trim().isEmpty) return;
 
-    state = TaskState.loading;
-    notifyListeners();
+    emit(LoadingTodoState());
 
     final request = CreateTodoRequest(
       title: title.trim(),
@@ -71,37 +60,34 @@ class TaskViewModel extends ChangeNotifier {
     final result = await _createTodoUseCase(request);
     result.fold(
       (failure) {
-        state = TaskState.error;
-        errorMessage = failure.message;
+        emit(ErrorTodoState(failure.message));
         debugPrint('createTodo Failure: ${failure.message}');
       },
       (newTask) {
-        state = TaskState.success;
         tasks = [newTask, ...tasks];
+        emit(ResponseTodoState(tasks));
         debugPrint('Task created: ${newTask.title}');
       },
     );
-    notifyListeners();
   }
 
   Future<void> toggleComplete(TaskEntity task) async {
     final updated = task.copyWith(completed: !task.completed);
     final idx = tasks.indexOf(task);
     tasks[idx] = updated;
+    emit(ResponseTodoState(tasks));
 
     final result = await _updateTodoUseCase(task.id, updated);
     result.fold(
       (failure) {
         tasks[idx] = task;
-        state = TaskState.error;
-        errorMessage = failure.message;
+        emit(ErrorTodoState(failure.message));
         debugPrint('toggleComplete Failure: ${failure.message}');
       },
       (updated) {
         debugPrint('toggele completed');
       },
     );
-    notifyListeners();
   }
 
   Future<void> updateTodo(TaskEntity task) async {
@@ -112,10 +98,9 @@ class TaskViewModel extends ChangeNotifier {
     final oldTask = tasks[idx];
 
     // Optimistically update the UI + show loading
-    state = TaskState.loading;
+    emit(TodoUpdating());
     tasks[idx] = task;
     tasks = List.from(tasks);
-    notifyListeners();
 
     final result = await _updateTodoUseCase(task.id, task);
 
@@ -124,16 +109,14 @@ class TaskViewModel extends ChangeNotifier {
         // Rollback to old task on failure
         tasks[idx] = oldTask;
         tasks = List.from(tasks);
-        state = TaskState.error;
-        errorMessage = failure.message;
+        emit(ErrorTodoState(failure.message));
         debugPrint('updateTodo Failure: ${failure.message}');
       },
       (_) {
-        state = TaskState.success;
+        emit(ResponseTodoState(tasks));
         debugPrint('Task Updated: ${task.title}');
       },
     );
-    notifyListeners();
   }
 
   Future<void> deleteTodo(TaskEntity task) async {
@@ -141,24 +124,21 @@ class TaskViewModel extends ChangeNotifier {
     if (idx == -1) return;
     final removedTask = tasks[idx];
     tasks.removeAt(idx);
-    notifyListeners();
+    emit(ResponseTodoState(tasks));
 
     final result = await _deleteTodoUseCase(task.id);
     result.fold(
       (failure) {
         tasks.insert(idx, removedTask);
-        errorMessage = failure.message;
+        emit(ErrorTodoState(failure.message));
       },
       (_) {
         debugPrint("Task deleted");
       },
     );
-    notifyListeners();
   }
 
   void resetState() {
-    state = TaskState.idle;
-    errorMessage = null;
-    notifyListeners();
+    emit(InitTodoState());
   }
 }

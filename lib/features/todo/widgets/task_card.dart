@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
-import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
-import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
+import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
 import 'package:to_do_app/features/todo/widgets/category_helper.dart';
 
 class TaskCard extends StatelessWidget {
@@ -36,7 +34,7 @@ class TaskCard extends StatelessWidget {
           child: Icon(Icons.delete, color: Colors.white, size: 28.r),
         ),
         confirmDismiss: (_) async {
-          context.read<TaskViewModel>().deleteTodo(task);
+          context.read<TodoCubit>().deleteTodo(task);
           return false;
         },
         child: Container(
@@ -52,7 +50,7 @@ class TaskCard extends StatelessWidget {
                 checkColor: AppColors.primary,
                 value: task.completed,
                 onChanged: (val) {
-                  context.read<TaskViewModel>().toggleComplete(task);
+                  context.read<TodoCubit>().toggleComplete(task);
                 },
               ),
               10.horizontalSpace,

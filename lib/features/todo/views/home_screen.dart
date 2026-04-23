@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
+import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
+import 'package:to_do_app/features/todo/cubit/todo_state.dart';
 import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/widgets/add_task_button.dart';
 import 'package:to_do_app/features/todo/views/add_task_sheet.dart';
@@ -25,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskViewModel>().getTodos();
+      context.read<TodoCubit>().getTodos();
     });
   }
 
@@ -34,93 +38,81 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _appBar(context),
-      body: Consumer<TaskViewModel>(
-        builder: (context, vm, _) {
-          // Initial load — no tasks yet, show full-screen spinner
-          if (vm.state == TaskState.loading && vm.tasks.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF8875FF)),
+      body: BlocBuilder<TodoCubit, TodoState>(
+        builder: (context, state) {
+          if (state is InitTodoState || state is LoadingTodoState) {
+            return Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
-
-          if (vm.state == TaskState.error && vm.tasks.isEmpty) {
+          if (state is ErrorTodoState) {
             return Center(
               child: Text(
-                vm.errorMessage ?? 'Something went wrong',
+                state.message ?? 'somethin went wrong',
                 style: const TextStyle(color: Colors.white70),
               ),
             );
           }
-
-          if (vm.tasks.isEmpty) {
-            return const Center(child: EmptyWidget());
+          if (state is ResponseTodoState) {
+            if (state.todo.isEmpty) {
+              Center(child: EmptyWidget());
+            }
+            return _tasksList(state.todo);
           }
-
-          // Stack: list + overlay loading HUD when creating/updating
-          return Stack(
-            children: [
-              _tasksList(vm),
-              if (vm.state == TaskState.loading)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF8875FF),
-                    ),
-                  ),
-                ),
-            ],
-          );
+          return const Center(child: EmptyWidget());
         },
       ),
-
       floatingActionButton: _addTaskButton(context),
     );
   }
 
-  Padding _tasksList(TaskViewModel vm) {
+  Padding _tasksList(List<TaskEntity> todo) {
     return Padding(
-          padding: EdgeInsets.all(16.h),
-          child: Column(
-            children: [
-              Expanded(
-                child: RefreshIndicator(
-                  color: Colors.white,
-                  onRefresh: () => vm.getTodos(),
-                  child: ListView.builder(
-                    itemCount: vm.tasks.length,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: 100.h, top: 4.h),
-                    itemBuilder: (context, index) {
-                      return TaskCard(task: vm.tasks[index],
-                      onTapEdit: ()async{
-                        await context.pushNamed<bool>(AppRoutes.edit, extra: vm.tasks[index]);
-                      },
+      padding: EdgeInsets.all(16.h),
+      child: Column(
+        children: [
+          Expanded(
+            child: RefreshIndicator(
+              color: Colors.white,
+              onRefresh: () => context.read<TodoCubit>().getTodos(),
+              child: ListView.builder(
+                itemCount: todo.length,
+                physics: AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.only(bottom: 100.h, top: 4.h),
+                itemBuilder: (context, index) {
+                  return TaskCard(
+                    task: todo[index],
+                    onTapEdit: () async {
+                      await context.pushNamed<bool>(
+                        AppRoutes.edit,
+                        extra: todo[index],
                       );
                     },
-                  ),
-                ),
+                  );
+                },
               ),
-            ],
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
-
-
 
   /// Widgets
   AddTaskButton _addTaskButton(BuildContext context) {
-    return AddTaskButton(onPressed: (){
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => ChangeNotifierProvider.value(
-          value: context.read<TaskViewModel>(),
-          child: const AddTaskSheet(),
-        ),
-      );
-    });
+    return AddTaskButton(
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => BlocProvider.value(
+            value: context.read<TodoCubit>(),
+            child: const AddTaskSheet(),
+          ),
+        );
+      },
+    );
   }
 
   CustomAppBar _appBar(BuildContext context) {

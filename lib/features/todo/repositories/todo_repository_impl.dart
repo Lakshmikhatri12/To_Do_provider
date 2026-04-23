@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:to_do_app/core/local/hive_service.dart';
 import 'package:to_do_app/features/auth/failures/failure.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/models/task_model/task_model.dart';
@@ -8,20 +9,32 @@ import 'package:to_do_app/features/todo/services/todo_service.dart';
 const int _kMaxRemoteTaskId = 200;
 
 class TodoRepositoryImpl implements TodoRepository {
+  final HiveService _hiveService;
   final TodoService _todoService;
 
-  TodoRepositoryImpl(this._todoService);
+  TodoRepositoryImpl(this._todoService, this._hiveService);
 
   @override
   Future<Either<Failure, List<TaskEntity>>> getTodos() async {
     try {
-      final response = await _todoService.getTodos();
-      final List todos = response;
-      final tasks = todos.map((e) => TaskModel.fromJson(e).toEntity()).toList();
-      return Right(tasks);
+      List<TaskEntity> localTasks = _hiveService.getAllTasks();
+
+      if (localTasks.isEmpty) {
+        final response = await _todoService.getTodos();
+
+        final List todos = response;
+        final tasks = todos
+            .map((e) => TaskModel.fromJson(e).toEntity())
+            .toList();
+        await _hiveService.saveTasks(tasks);
+      }
+
+      return Right(localTasks);
     } on Failure catch (e) {
       return Left(e);
     } catch (e) {
+      final local = _hiveService.getAllTasks();
+      if (local.isNotEmpty) return Right(local);
       return Left(ServerFailure('Unexpected error: $e'));
     }
   }
@@ -43,7 +56,9 @@ class TodoRepositoryImpl implements TodoRepository {
         'dateTime': dateTime?.toIso8601String(),
       };
       final response = await _todoService.createTodo(data);
-      final task = TaskModel.fromJson(response).toEntity();
+      var task = TaskModel.fromJson(response).toEntity();
+
+      await _hiveService.addTask(task: task);
 
       return Right(task);
     } on Failure catch (e) {
@@ -59,19 +74,19 @@ class TodoRepositoryImpl implements TodoRepository {
     TaskEntity data,
   ) async {
     try {
-      if (id > _kMaxRemoteTaskId) {
-        return Right(data);
+      if (id < _kMaxRemoteTaskId) {
+        final body = {
+          'title': data.title,
+          'description': data.description,
+          'completed': data.completed,
+          'priority': data.priority,
+          'category': data.category,
+        };
+        await _todoService.updateTodo(id, body);
       }
-      final body = {
-        'title': data.title,
-        'description': data.description,
-        'completed': data.completed,
-        'priority': data.priority,
-        'category': data.category,
-      };
-      final response = await _todoService.updateTodo(id, body);
-      final task = TaskModel.fromJson(response).toEntity();
-      return Right(task);
+
+      await _hiveService.updateTask(task: data);
+      return Right(data);
     } on Failure catch (e) {
       return Left(e);
     } catch (e) {
@@ -82,8 +97,12 @@ class TodoRepositoryImpl implements TodoRepository {
   @override
   Future<Either<Failure, void>> deleteTodo(int id) async {
     try {
-      if (id > _kMaxRemoteTaskId) return Right(null);
-      await _todoService.deleteTodo(id);
+      await _hiveService.deleteTask(id: id);
+
+      if (id < _kMaxRemoteTaskId) {
+        await _todoService.deleteTodo(id);
+      }
+
       return Right(null);
     } on Failure catch (e) {
       return Left(e);
