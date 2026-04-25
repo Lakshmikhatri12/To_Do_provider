@@ -12,7 +12,7 @@ class HiveService {
   }
 
   Future<void> addTask({required TaskEntity task}) async {
-    await box.add(task);
+    await box.put(task.id, task);
   }
 
   Future<void> updateTask({required TaskEntity task}) async {
