@@ -1,24 +1,26 @@
-import 'package:to_do_app/core/network/config/app_url.dart';
-import 'package:to_do_app/core/network/client/api_service.dart';
+import 'package:to_do_app/core/local/hive_service.dart';
+import 'package:to_do_app/features/todo/entities/task_entity.dart';
 
 class TodoService {
-  final ApiService _apiService;
+  final HiveService _hiveService;
 
-  TodoService(this._apiService);
+  TodoService(this._hiveService);
 
   Future<dynamic> getTodos() async {
-    return await _apiService.get(AppUrl.todosEndPoint);
+    return _hiveService.getAllTasks();
   }
 
-  Future<dynamic> createTodo(Map<String, dynamic> data) async {
-    return await _apiService.post(AppUrl.todosEndPoint, data: data);
+  Future<dynamic> createTodo(TaskEntity task) async {
+    await _hiveService.addTask(task: task);
+    return task;
   }
 
-  Future<dynamic> updateTodo(int id, Map<String, dynamic> data) async {
-    return await _apiService.put(AppUrl.todoById(id), data: data);
+  Future<dynamic> updateTodo(int id, TaskEntity task) async {
+    await _hiveService.updateTask(task: task);
+    return task;
   }
 
   Future<dynamic> deleteTodo(int id) async {
-    return await _apiService.delete(AppUrl.todoById(id));
+    return await _hiveService.deleteTask(id: id);
   }
 }

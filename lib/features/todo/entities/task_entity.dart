@@ -3,7 +3,7 @@ import 'package:hive_ce/hive.dart';
 part 'task_entity.g.dart';
 
 @HiveType(typeId: 0)
-class TaskEntity {
+class TaskEntity extends HiveObject {
   @HiveField(0)
   final int id;
   @HiveField(1)

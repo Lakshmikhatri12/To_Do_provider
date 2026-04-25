@@ -14,7 +14,6 @@ import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository.dart';
 import 'package:to_do_app/features/todo/repositories/todo_repository_impl.dart';
 import 'package:to_do_app/features/todo/services/todo_service.dart';
-import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 
 import '../../features/todo/usecases/create_todo_usecase.dart';
 import '../../features/todo/usecases/delete_todo_usecase.dart';
@@ -49,11 +48,11 @@ void setupLocator() {
   );
 
   getIt.registerLazySingleton<TodoService>(
-    () => TodoService(getIt<ApiService>()),
+    () => TodoService(getIt<HiveService>()),
   );
 
   getIt.registerLazySingleton<TodoRepository>(
-    () => TodoRepositoryImpl(getIt<TodoService>(), getIt<HiveService>()),
+    () => TodoRepositoryImpl(getIt<TodoService>()),
   );
 
   getIt.registerFactory<AuthViewModel>(

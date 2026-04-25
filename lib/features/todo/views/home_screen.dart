@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:to_do_app/core/constants/app_colors.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
 import 'package:to_do_app/features/todo/cubit/todo_state.dart';
-import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/widgets/add_task_button.dart';
 import 'package:to_do_app/features/todo/views/add_task_sheet.dart';
 import 'package:to_do_app/features/todo/widgets/empty_widget.dart';
@@ -48,15 +46,16 @@ class _HomeScreenState extends State<HomeScreen> {
           if (state is ErrorTodoState) {
             return Center(
               child: Text(
-                state.message ?? 'somethin went wrong',
+                state.message,
                 style: const TextStyle(color: Colors.white70),
               ),
             );
           }
           if (state is ResponseTodoState) {
             if (state.todo.isEmpty) {
-              Center(child: EmptyWidget());
+              return Center(child: EmptyWidget());
             }
+
             return _tasksList(state.todo);
           }
           return const Center(child: EmptyWidget());

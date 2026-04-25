@@ -7,12 +7,7 @@ class HiveService {
 
   final Box<TaskEntity> box = Hive.box<TaskEntity>(todoBox);
 
-  Future<void> saveTasks(List<TaskEntity> tasks) async {
-    final map = {for (var task in tasks) task.id: task};
-    await box.putAll(map);
-  }
-
-  List<TaskEntity> getAllTasks() {
+  List<TaskEntity?> getAllTasks() {
     return box.values.toList();
   }
 
@@ -20,9 +15,8 @@ class HiveService {
     await box.add(task);
   }
 
-  Future<TaskEntity?> updateTask({required TaskEntity task}) async {
+  Future<void> updateTask({required TaskEntity task}) async {
     await box.put(task.id, task);
-    return box.get(task.id);
   }
 
   Future<void> deleteTask({required int id}) async {

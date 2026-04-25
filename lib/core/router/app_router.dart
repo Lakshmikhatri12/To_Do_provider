@@ -13,7 +13,6 @@ import 'package:to_do_app/features/splash/view_models/splash_view_model.dart';
 import 'package:to_do_app/features/splash/views/splash_screen.dart';
 import 'package:to_do_app/features/todo/entities/task_entity.dart';
 import 'package:to_do_app/features/todo/cubit/todo_cubit.dart';
-import 'package:to_do_app/features/todo/view_models/task_view_model.dart';
 import 'package:to_do_app/features/todo/views/edit_task_screen.dart';
 import 'package:to_do_app/features/todo/views/home_screen.dart';
 

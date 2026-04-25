@@ -10,13 +10,15 @@ import 'core/router/app_router.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
+
   await Hive.initFlutter();
 
   Hive.registerAdapter<TaskEntity>(TaskEntityAdapter());
 
   await Hive.openBox<TaskEntity>(HiveService.todoBox);
-  print("Hive box opened: ${Hive.isBoxOpen(HiveService.todoBox)}");
+  debugPrint("Hive box opened");
   setupLocator();
   runApp(
     ScreenUtilInit(
@@ -28,26 +30,6 @@ void main() async {
     ),
   );
 }
-
-// class BaseWidget extends InheritedWidget {
-//   BaseWidget({Key? key, required this.child}) : super(key: key, child: child);
-//   final HiveService dataStore = HiveService();
-//   final Widget child;
-
-//   static BaseWidget of(BuildContext context) {
-//     final base = context.dependOnInheritedWidgetOfExactType<BaseWidget>();
-//     if (base != null) {
-//       return base;
-//     } else {
-//       throw ('Could not find ancestor widget of type BaseWidget');
-//     }
-//   }
-
-//   @override
-//   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-//     return false;
-//   }
-// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -31,6 +31,7 @@ class TodoCubit extends Cubit<TodoState> {
         emit(ErrorTodoState(failure.message));
       },
       (data) {
+        data.sort((a, b) => a.priority.compareTo(b.priority));
         emit(ResponseTodoState(data));
         tasks = data;
       },
