@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:to_do_app/features/auth/failures/failure.dart';
+import 'package:to_do_app/core/error/failure.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'auth_viewmodel_test.mocks.dart';

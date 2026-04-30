@@ -1,5 +1,5 @@
-class AppRoutes {
-  AppRoutes._();
+abstract class AppRoutes {
+  // AppRoutes._();
   static const splashPath = '/splash';
   static const splash = 'splash';
   static const onboardingPath = '/onboarding';

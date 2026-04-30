@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/features/auth/failures/failure.dart';
+import 'package:injectable/injectable.dart';
+import 'package:to_do_app/core/error/failure.dart';
 import 'package:to_do_app/features/auth/models/login_request.dart';
 import 'package:to_do_app/features/auth/models/signup_request.dart';
 import 'package:to_do_app/features/auth/models/user_model/user_model.dart';
@@ -7,6 +8,7 @@ import 'package:to_do_app/features/auth/repositories/auth_repository.dart';
 
 enum AuthState { idle, loading, success, error }
 
+@lazySingleton
 class AuthViewModel extends ChangeNotifier {
   final AuthRepository _authRepo;
   AuthViewModel(this._authRepo);

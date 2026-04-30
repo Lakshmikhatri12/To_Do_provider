@@ -35,34 +35,40 @@ class MockAuthRepository extends _i1.Mock implements _i2.AuthRepository {
   @override
   _i3.Future<dynamic> loginApi(Map<String, dynamic>? data) =>
       (super.noSuchMethod(
-            Invocation.method(#loginApi, [data]),
-            returnValue: _i3.Future<dynamic>.value(),
-          )
-          as _i3.Future<dynamic>);
+        Invocation.method(
+          #loginApi,
+          [data],
+        ),
+        returnValue: _i3.Future<dynamic>.value(),
+      ) as _i3.Future<dynamic>);
 
   @override
   _i3.Future<dynamic> signupApi(Map<String, dynamic>? data) =>
       (super.noSuchMethod(
-            Invocation.method(#signupApi, [data]),
-            returnValue: _i3.Future<dynamic>.value(),
-          )
-          as _i3.Future<dynamic>);
+        Invocation.method(
+          #signupApi,
+          [data],
+        ),
+        returnValue: _i3.Future<dynamic>.value(),
+      ) as _i3.Future<dynamic>);
 
   @override
-  _i3.Future<void> saveToken(String? token) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveToken, [token]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> saveToken(String? token) => (super.noSuchMethod(
+        Invocation.method(
+          #saveToken,
+          [token],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> clearToken() =>
-      (super.noSuchMethod(
-            Invocation.method(#clearToken, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> clearToken() => (super.noSuchMethod(
+        Invocation.method(
+          #clearToken,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }

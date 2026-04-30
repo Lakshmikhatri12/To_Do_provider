@@ -1,6 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:to_do_app/features/auth/failures/failure.dart';
+import 'package:to_do_app/core/error/failure.dart';
 
 class ConnectivityInterceptor extends Interceptor {
   @override

@@ -1,7 +1,10 @@
+import 'package:injectable/injectable.dart';
 import 'package:to_do_app/features/auth/repositories/auth_repository.dart';
 import 'package:to_do_app/features/auth/services/auth_service.dart';
 import 'package:to_do_app/features/auth/services/token_service.dart';
 
+
+@Injectable(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   final TokenService _tokenService;
   final AuthService _authService;

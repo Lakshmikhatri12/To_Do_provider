@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:injectable/injectable.dart';
 import 'package:to_do_app/core/network/interceptors/auth_interceptors.dart';
 import 'package:to_do_app/core/network/interceptors/connectivity_interceptor.dart';
 import 'package:to_do_app/core/network/interceptors/logger_interceptor.dart';
-import 'package:to_do_app/features/auth/failures/failure.dart';
+import 'package:to_do_app/core/error/failure.dart';
 
+@LazySingleton()
 class ApiService {
   final Dio _dio;
   final FlutterSecureStorage _secureStorage;

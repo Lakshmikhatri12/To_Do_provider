@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:to_do_app/features/todo/entities/task_entity.dart';
+import 'package:to_do_app/features/todo/domain/entities/task_entity.dart';
 
 class HiveService {
   static const todoBox = 'todo';
 
   final Box<TaskEntity> box = Hive.box<TaskEntity>(todoBox);
 
-  List<TaskEntity?> getAllTasks() {
+  List<TaskEntity> getAllTasks() {
     return box.values.toList();
   }
 

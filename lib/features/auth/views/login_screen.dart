@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_app/core/app_validators.dart';
 import 'package:to_do_app/core/router/app_routes.dart';
+import 'package:to_do_app/core/utils/app_validators.dart';
 import 'package:to_do_app/core/utils/snackbar_utils.dart';
 import 'package:to_do_app/features/auth/view_models/auth_view_model.dart';
 import 'package:to_do_app/features/auth/widgets/custom_button.dart';
@@ -119,7 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 4.w),
                           child: Text(
                             "or",
-                            style: Theme.of(context).textTheme.displaySmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall
                                 ?.copyWith(color: Colors.grey),
                           ),
                         ),
@@ -146,7 +148,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Text(
                             "Don't have an account? ",
-                            style: Theme.of(context).textTheme.displaySmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall
                                 ?.copyWith(color: Colors.grey),
                           ),
                           GestureDetector(
@@ -155,7 +159,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                             child: Text(
                               "Register",
-                              style: Theme.of(context).textTheme.displaySmall
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
                                   ?.copyWith(
                                     decoration: TextDecoration.underline,
                                   ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:to_do_app/features/onboarding/models/onboarding_page_model.dart';
 import 'package:to_do_app/gen/assets.gen.dart';
 
+@lazySingleton
 class OnboardingViewModel extends ChangeNotifier {
   final PageController controller = PageController();
 

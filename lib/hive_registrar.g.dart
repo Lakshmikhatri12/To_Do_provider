@@ -3,7 +3,7 @@
 // Check in to version control
 
 import 'package:hive_ce/hive_ce.dart';
-import 'package:to_do_app/features/todo/entities/task_entity.dart';
+import 'package:to_do_app/features/todo/domain/entities/task_entity.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {

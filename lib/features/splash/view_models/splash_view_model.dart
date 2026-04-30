@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
 import 'package:to_do_app/features/auth/services/token_service.dart';
 
 enum SplashState { loading, authenticated, unauthenticated }
 
+@lazySingleton
 class SplashViewModel extends ChangeNotifier {
   final TokenService _tokenService;
 
